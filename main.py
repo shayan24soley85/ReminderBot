@@ -10,10 +10,18 @@ bot = telebot.TeleBot(TOKEN)
 
 print("successfully connected to telegram!")
 
+github_button = telebot.types.InlineKeyboardButton(
+    "Github", url="https://github.com/shayan24soley85"
+)
+markup = telebot.types.InlineKeyboardMarkup()
+markup.add(github_button)
+
 
 @bot.message_handler(commands=["start"])
 def send_welcome(message):
-    bot.send_message(message.chat.id, "Hi Welcome to Reminder Bot!")
+    bot.send_message(
+        message.chat.id, "Hi Welcome to Reminder Bot!", reply_markup=markup
+    )
 
 
 @bot.message_handler(commands=["help"])
