@@ -16,4 +16,17 @@ def send_welcome(message):
     bot.send_message(message.chat.id, "Hi Welcome to Reminder Bot!")
 
 
+@bot.message_handler(commands=["help"])
+def send_help(message):
+    help_text = (
+        "🤖 <b>Your Reminder Bot Guide:</b>\n\n"
+        "🔹 /start - Start the bot\n"
+        "🔹 /help - Show this help message\n"
+        "🔹 /add - Add a new reminder (Coming soon...)\n\n"
+        "Choose a command to get started!"
+    )
+
+    bot.reply_to(message, help_text, parse_mode="HTML")
+
+
 bot.infinity_polling()
