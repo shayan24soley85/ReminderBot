@@ -21,6 +21,10 @@ markup = telebot.types.InlineKeyboardMarkup()
 markup.add(github_button, telegram_button)
 
 
+key_markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
+key_markup.add("one", "two", "three")
+
+
 @bot.message_handler(commands=["start"])
 def send_welcome(message):
     bot.send_message(
@@ -38,7 +42,17 @@ def send_help(message):
         "Choose a command to get started!"
     )
 
-    bot.reply_to(message, help_text, parse_mode="HTML")
+    bot.reply_to(message, help_text, parse_mode="HTML", reply_markup=key_markup)
+
+
+@bot.message_handler()
+def keyboard(message):
+    if message.text == "one":
+        bot.send_message(message.chat.id, "you tapped one button!")
+    elif message.text == "two":
+        bot.send_message(message.chat.id, "you tapped two button!")
+    elif message.text == "three":
+        bot.send_message(message.chat.id, "you tapped three button!")
 
 
 bot.infinity_polling()
