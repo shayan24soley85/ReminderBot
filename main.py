@@ -13,8 +13,12 @@ print("successfully connected to telegram!")
 github_button = telebot.types.InlineKeyboardButton(
     "Github", url="https://github.com/shayan24soley85"
 )
+telegram_button = telebot.types.InlineKeyboardButton(
+    "Telegram", url="https://t.me/shayan357v"
+)
+
 markup = telebot.types.InlineKeyboardMarkup()
-markup.add(github_button)
+markup.add(github_button, telegram_button)
 
 
 @bot.message_handler(commands=["start"])
