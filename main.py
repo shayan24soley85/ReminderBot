@@ -17,8 +17,9 @@ telegram_button = telebot.types.InlineKeyboardButton(
     "Telegram", url="https://t.me/shayan357v"
 )
 random_button = telebot.types.InlineKeyboardButton("random", callback_data="random")
+random2_button = telebot.types.InlineKeyboardButton("random2", callback_data="random2")
 markup = telebot.types.InlineKeyboardMarkup()
-markup.add(github_button, telegram_button, random_button)
+markup.add(github_button, telegram_button, random_button, random2_button, row_width=2)
 
 
 key_markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
@@ -27,7 +28,15 @@ key_markup.add("one", "two", "three")
 
 @bot.callback_query_handler(func=lambda call: True)
 def callback(call):
-    bot.send_message(call.message.chat.id, "you clicked on random button")
+    if call.data == "random":
+        bot.send_message(call.message.chat.id, "you clicked on random button")
+        # show_alert=true is another option in this part
+        bot.answer_callback_query(call.id, "you clicked on random button")
+    elif call.data == "random2":
+        bot.send_message(call.message.chat.id, "you clicked on random2 button")
+        bot.answer_callback_query(
+            call.id, "you clicked on random2 button", show_alert=True
+        )
 
 
 @bot.message_handler(commands=["start"])
