@@ -16,13 +16,18 @@ github_button = telebot.types.InlineKeyboardButton(
 telegram_button = telebot.types.InlineKeyboardButton(
     "Telegram", url="https://t.me/shayan357v"
 )
-
+random_button = telebot.types.InlineKeyboardButton("random", callback_data="random")
 markup = telebot.types.InlineKeyboardMarkup()
-markup.add(github_button, telegram_button)
+markup.add(github_button, telegram_button, random_button)
 
 
 key_markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
 key_markup.add("one", "two", "three")
+
+
+@bot.callback_query_handler(func=lambda call: True)
+def callback(call):
+    bot.send_message(call.message.chat.id, "you clicked on random button")
 
 
 @bot.message_handler(commands=["start"])
