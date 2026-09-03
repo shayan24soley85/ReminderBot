@@ -77,8 +77,11 @@ def get_phone(message):
     chat_id = message.chat.id
     phone_text = message.text.strip()
 
-    if not re.match(r"^(?:0|\+98)?9\d{9}$", phone_text):
-        msg = bot.send_message(chat_id, "Invalid phone format! Please try again:")
+    if not re.match(r"^(?:0|\+98)9\d{9}$", phone_text):
+        msg = bot.send_message(
+            chat_id,
+            "Invalid phone number format! Please use the 09xxxxxxxxx format (e.g., 09121111111). Try again:",
+        )
         bot.register_next_step_handler(msg, get_phone)
         return
 
