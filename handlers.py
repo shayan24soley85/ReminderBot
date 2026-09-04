@@ -34,20 +34,25 @@ def send_help(message):
     bot.reply_to(message, help_text, parse_mode="HTML", reply_markup=key_markup)
 
 
-@bot.message_handler(func=lambda m: True)
-def keyboard(message):
+@bot.message_handler(func=lambda m: m.text == "Information Registration")
+def register_info_button(message):
     chat_id = message.chat.id
-    if message.text == "Information Registration":
-        user_data[chat_id] = {}
-        msg = bot.send_message(
-            chat_id,
-            "Registering your information:\nPlease enter your full name!",
-        )
-        bot.register_next_step_handler(msg, get_name)
-    elif message.text == "two":
-        bot.send_message(chat_id, "you tapped two button!")
-    elif message.text == "three":
-        bot.send_message(chat_id, "you tapped three button!")
+    user_data[chat_id] = {}
+    msg = bot.send_message(
+        chat_id,
+        "Registering your information:\nPlease enter your full name!",
+    )
+    bot.register_next_step_handler(msg, get_name)
+
+
+@bot.message_handler(func=lambda m: m.text == "two")
+def button_two(message):
+    bot.send_message(message.chat.id, "you tapped two button!")
+
+
+@bot.message_handler(func=lambda m: m.text == "three")
+def button_three(message):
+    bot.send_message(message.chat.id, "you tapped three button!")
 
 
 def get_name(message):
