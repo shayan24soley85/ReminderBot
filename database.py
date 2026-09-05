@@ -1,0 +1,34 @@
+import sqlite3
+
+
+def init_db():
+    conn = sqlite3.connect("bot_data.db")
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS users (
+            chat_id INTEGER PRIMARY KEY,
+            name TEXT,
+            age TEXT,
+            phone TEXT
+        )
+    """)
+
+    conn.commit()
+    conn.close()
+
+
+def save_user(chat_id, name, age, phone):
+    conn = sqlite3.connect("bot_data.db")
+    cursor = conn.cursor()
+
+    cursor.execute(
+        """
+        INSERT OR REPLACE INTO users (chat_id, name, age, phone)
+        VALUES (?, ?, ?, ?)
+    """,
+        (chat_id, name, age, phone),
+    )
+
+    conn.commit()
+    conn.close()

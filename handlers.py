@@ -2,6 +2,7 @@ import re
 import time
 from config import bot, user_data
 import telebot
+import database
 from keyboards import markup, key_markup, github_button, telegram_button, random2_button
 
 
@@ -114,7 +115,9 @@ def final_step(message):
     age = user_data[chat_id].get("age")
     phone = user_data[chat_id].get("phone")
 
-    msg = f"✅ Registration Complete!\n\nYour name: {name}\nYour age: {age}\nYour phone number: {phone}\n"
+    database.save_user(chat_id, name, age, phone)
+
+    msg = f"✅ Registration Complete and Saved!\n\nYour name: {name}\nYour age: {age}\nYour phone number: {phone}\n"
     bot.send_chat_action(message.chat.id, action="typing")
     bot.send_message(chat_id, msg)
 
