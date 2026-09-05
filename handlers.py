@@ -54,7 +54,7 @@ def send_help(message):
     bot.reply_to(message, help_text, parse_mode="HTML", reply_markup=key_markup)
 
 
-@bot.message_handler(func=lambda m: m.text == "Information Registration")
+@bot.message_handler(func=lambda m: m.text == "✍️ Information Registration")
 def register_info_button(message):
     chat_id = message.chat.id
     user_data[chat_id] = {}
@@ -145,7 +145,31 @@ def button_three(message):
     )
 
 
-@bot.message_handler(func=lambda m: m.text == "Back")
+@bot.message_handler(func=lambda m: m.text == "👤 My Profile")
+def show_profile(message):
+    chat_id = message.chat.id
+    bot.send_chat_action(chat_id, action="typing")
+
+    user = database.get_user(chat_id)
+
+    if user:
+
+        name, age, phone = user
+        text = (
+            f"👤 <b>Your Profile</b>\n\n"
+            f"🔹 <b>Name:</b> {name}\n"
+            f"🔹 <b>Age:</b> {age}\n"
+            f"🔹 <b>Phone:</b> {phone}\n\n"
+            f"<i>💡 To edit your info, simply tap 'Information Registration' again.</i>"
+        )
+    else:
+
+        text = "❌ You haven't registered yet!\nPlease tap 'Information Registration' to set up your profile."
+
+    bot.send_message(chat_id, text, parse_mode="HTML")
+
+
+@bot.message_handler(func=lambda m: m.text == "🔚 Back")
 def close_keyboard(message):
     bot.send_chat_action(message.chat.id, action="typing")
 

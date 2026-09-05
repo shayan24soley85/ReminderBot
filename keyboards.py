@@ -13,4 +13,6 @@ markup = telebot.types.InlineKeyboardMarkup()
 markup.add(github_button, telegram_button, random_button, random2_button, row_width=2)
 
 key_markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
-key_markup.add("Information Registration", "two", "three", "Back")
+key_markup.add(
+    "✍️ Information Registration", "👤 My Profile", "two", "three", "🔚 Back"
+)

@@ -32,3 +32,14 @@ def save_user(chat_id, name, age, phone):
 
     conn.commit()
     conn.close()
+
+
+def get_user(chat_id):
+    conn = sqlite3.connect("bot_data.db")
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT name, age, phone FROM users WHERE chat_id = ?", (chat_id,))
+    user = cursor.fetchone()
+
+    conn.close()
+    return user
