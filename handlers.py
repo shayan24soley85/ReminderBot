@@ -199,7 +199,7 @@ def show_profile(message):
         bot.send_message(chat_id, text, parse_mode="HTML", reply_markup=profile_markup)
     else:
         text = "❌ You haven't registered yet!\nPlease tap 'Information Registration' to set up your profile."
-    bot.send_message(chat_id, text, parse_mode="HTML")
+        bot.send_message(chat_id, text, parse_mode="HTML")
 
 
 @bot.message_handler(func=lambda m: m.text == "🔚 Back")
