@@ -15,6 +15,7 @@ def callback(call):
         new_markup.add(
             github_button, telegram_button, edited_random_btn, random2_button
         )
+
         bot.edit_message_reply_markup(
             chat_id=call.message.chat.id,
             message_id=call.message.message_id,
@@ -138,4 +139,17 @@ def button_three(message):
         chat_id=message.chat.id,
         message_id=m.message_id,
         text="message have been edited!",
+    )
+
+
+@bot.message_handler(func=lambda m: m.text == "Back")
+def close_keyboard(message):
+    bot.send_chat_action(message.chat.id, action="typing")
+
+    remove_markup = telebot.types.ReplyKeyboardRemove()
+
+    bot.send_message(
+        message.chat.id,
+        "Menu closed! Type /help to open it again.",
+        reply_markup=remove_markup,
     )
