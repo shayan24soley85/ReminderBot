@@ -1,15 +1,28 @@
 import re
 import time
 from config import bot, user_data
-from keyboards import markup, key_markup
+import telebot
+from keyboards import markup, key_markup, github_button, telegram_button, random2_button
 
 
 @bot.callback_query_handler(func=lambda call: True)
 def callback(call):
     if call.data == "random":
-        bot.send_chat_action(call.message.chat.id, action="typing")
-        bot.send_message(call.message.chat.id, "you clicked on random button")
-        bot.answer_callback_query(call.id, "you clicked on random button")
+        edited_random_btn = telebot.types.InlineKeyboardButton(
+            "edited_random", callback_data="random"
+        )
+        new_markup = telebot.types.InlineKeyboardMarkup(row_width=2)
+        new_markup.add(
+            github_button, telegram_button, edited_random_btn, random2_button
+        )
+        bot.edit_message_reply_markup(
+            chat_id=call.message.chat.id,
+            message_id=call.message.message_id,
+            reply_markup=new_markup,
+        )
+
+        bot.answer_callback_query(call.id, "Button name changed!")
+
     elif call.data == "random2":
         bot.send_chat_action(call.message.chat.id, action="typing")
         bot.send_message(call.message.chat.id, "you clicked on random2 button")
@@ -116,4 +129,13 @@ def button_two(message):
 @bot.message_handler(func=lambda m: m.text == "three")
 def button_three(message):
     bot.send_chat_action(message.chat.id, action="typing")
-    bot.send_message(message.chat.id, "you tapped three button!")
+    m = bot.send_message(
+        message.chat.id,
+        "you tapped three button!this message will be edited after 3 seconds!",
+    )
+    time.sleep(3)
+    bot.edit_message_text(
+        chat_id=message.chat.id,
+        message_id=m.message_id,
+        text="message have been edited!",
+    )
