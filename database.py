@@ -43,3 +43,13 @@ def get_user(chat_id):
 
     conn.close()
     return user
+
+
+def delete_user(chat_id):
+    conn = sqlite3.connect("bot_data.db")
+    cursor = conn.cursor()
+
+    cursor.execute("DELETE FROM users WHERE chat_id = ?", (chat_id,))
+
+    conn.commit()
+    conn.close()

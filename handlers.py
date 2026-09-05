@@ -3,7 +3,14 @@ import time
 from config import bot, user_data
 import telebot
 import database
-from keyboards import markup, key_markup, github_button, telegram_button, random2_button
+from keyboards import (
+    markup,
+    key_markup,
+    github_button,
+    telegram_button,
+    random2_button,
+    profile_markup,
+)
 
 
 @bot.callback_query_handler(func=lambda call: True)
@@ -31,6 +38,33 @@ def callback(call):
         bot.answer_callback_query(
             call.id, "you clicked on random2 button", show_alert=True
         )
+    elif call.data == "clear_info":
+
+        database.delete_user(call.message.chat.id)
+
+        if call.message.chat.id in user_data:
+            del user_data[call.message.chat.id]
+
+        bot.edit_message_text(
+            chat_id=call.message.chat.id,
+            message_id=call.message.message_id,
+            text="🗑 Your profile information has been completely deleted!",
+        )
+        bot.answer_callback_query(call.id, "Information cleared!", show_alert=True)
+
+    elif call.data == "back_profile":
+
+        bot.delete_message(
+            chat_id=call.message.chat.id, message_id=call.message.message_id
+        )
+    elif call.data == "edit_info":
+
+        bot.delete_message(
+            chat_id=call.message.chat.id, message_id=call.message.message_id
+        )
+        register_info_button(call.message)
+
+        bot.answer_callback_query(call.id)
 
 
 @bot.message_handler(commands=["start"])
@@ -153,19 +187,18 @@ def show_profile(message):
     user = database.get_user(chat_id)
 
     if user:
-
         name, age, phone = user
         text = (
             f"👤 <b>Your Profile</b>\n\n"
             f"🔹 <b>Name:</b> {name}\n"
             f"🔹 <b>Age:</b> {age}\n"
             f"🔹 <b>Phone:</b> {phone}\n\n"
-            f"<i>💡 To edit your info, simply tap 'Information Registration' again.</i>"
+            f"<i>💡 Choose an option below:</i>"
         )
+
+        bot.send_message(chat_id, text, parse_mode="HTML", reply_markup=profile_markup)
     else:
-
         text = "❌ You haven't registered yet!\nPlease tap 'Information Registration' to set up your profile."
-
     bot.send_message(chat_id, text, parse_mode="HTML")
 
 
