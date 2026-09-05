@@ -1,4 +1,5 @@
 import re
+import time
 from config import bot, user_data
 from keyboards import markup, key_markup
 
@@ -48,18 +49,6 @@ def register_info_button(message):
         "Registering your information:\nPlease enter your full name!",
     )
     bot.register_next_step_handler(msg, get_name)
-
-
-@bot.message_handler(func=lambda m: m.text == "two")
-def button_two(message):
-    bot.send_chat_action(message.chat.id, action="typing")
-    bot.send_message(message.chat.id, "you tapped two button!")
-
-
-@bot.message_handler(func=lambda m: m.text == "three")
-def button_three(message):
-    bot.send_chat_action(message.chat.id, action="typing")
-    bot.send_message(message.chat.id, "you tapped three button!")
 
 
 def get_name(message):
@@ -114,3 +103,17 @@ def final_step(message):
     msg = f"✅ Registration Complete!\n\nYour name: {name}\nYour age: {age}\nYour phone number: {phone}\n"
     bot.send_chat_action(message.chat.id, action="typing")
     bot.send_message(chat_id, msg)
+
+
+@bot.message_handler(func=lambda m: m.text == "two")
+def button_two(message):
+    bot.send_chat_action(message.chat.id, action="typing")
+    m = bot.send_message(message.chat.id, "you tapped two button!")
+    time.sleep(2)
+    bot.delete_messages(message.chat.id, [message.message_id, m.message_id])
+
+
+@bot.message_handler(func=lambda m: m.text == "three")
+def button_three(message):
+    bot.send_chat_action(message.chat.id, action="typing")
+    bot.send_message(message.chat.id, "you tapped three button!")
