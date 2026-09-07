@@ -12,18 +12,29 @@ random2_button = telebot.types.InlineKeyboardButton("random2", callback_data="ra
 markup = telebot.types.InlineKeyboardMarkup()
 markup.add(github_button, telegram_button, random_button, random2_button, row_width=2)
 
-key_markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
-key_markup.add(
-    "✍️ Information Registration", "👤 My Profile", "two", "three", "🔚 Back"
+main_inline_markup = telebot.types.InlineKeyboardMarkup(row_width=2)
+reg_btn = telebot.types.InlineKeyboardButton(
+    "✍️ Information Registration", callback_data="register_info"
 )
-profile_markup = telebot.types.InlineKeyboardMarkup(row_width=2)
+prof_btn = telebot.types.InlineKeyboardButton(
+    "👤 My Profile", callback_data="my_profile"
+)
+btn_two = telebot.types.InlineKeyboardButton("two", callback_data="btn_two")
+btn_three = telebot.types.InlineKeyboardButton("three", callback_data="btn_three")
+close_btn = telebot.types.InlineKeyboardButton(
+    "❌ Close Menu", callback_data="close_menu"
+)
 
+main_inline_markup.add(reg_btn, prof_btn)
+main_inline_markup.add(btn_two, btn_three)
+main_inline_markup.add(close_btn)
+
+profile_markup = telebot.types.InlineKeyboardMarkup(row_width=2)
 edit_btn = telebot.types.InlineKeyboardButton("✏️ Edit Info", callback_data="edit_info")
 clear_btn = telebot.types.InlineKeyboardButton(
     "🚮 Clear Info", callback_data="clear_info"
 )
 back_btn = telebot.types.InlineKeyboardButton("🔙 Back", callback_data="back_profile")
-
 
 profile_markup.add(edit_btn, clear_btn)
 profile_markup.add(back_btn)
