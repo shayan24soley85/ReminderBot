@@ -9,12 +9,9 @@ prof_btn = telebot.types.InlineKeyboardButton(
 )
 about_btn = telebot.types.InlineKeyboardButton("ℹ️ About Us", callback_data="about_us")
 help_btn = telebot.types.InlineKeyboardButton("❓ Help", callback_data="help_menu")
-btn_two = telebot.types.InlineKeyboardButton("two", callback_data="btn_two")
-btn_three = telebot.types.InlineKeyboardButton("three", callback_data="btn_three")
 
 main_inline_markup.add(reg_btn, prof_btn)
 main_inline_markup.add(about_btn, help_btn)
-main_inline_markup.add(btn_two, btn_three)
 
 home_btn = telebot.types.InlineKeyboardButton("🏠 Home", callback_data="home")
 
@@ -38,3 +35,7 @@ clear_btn = telebot.types.InlineKeyboardButton(
 )
 profile_markup.add(edit_btn, clear_btn)
 profile_markup.add(home_btn)
+
+cancel_markup = telebot.types.InlineKeyboardMarkup()
+cancel_btn = telebot.types.InlineKeyboardButton("❌ Cancel", callback_data="cancel_reg")
+cancel_markup.add(cancel_btn)

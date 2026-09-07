@@ -8,6 +8,7 @@ from keyboards import (
     about_markup,
     profile_markup,
     home_markup,
+    cancel_markup,
 )
 
 
@@ -81,26 +82,12 @@ def callback(call):
         show_profile(call.message, call.message.message_id)
         bot.answer_callback_query(call.id)
 
-    elif call.data == "btn_two":
-        bot.send_chat_action(call.message.chat.id, action="typing")
-        m = bot.send_message(call.message.chat.id, "you tapped two button!")
-        time.sleep(2)
-        bot.delete_messages(
-            call.message.chat.id, [call.message.message_id, m.message_id]
-        )
-        bot.answer_callback_query(call.id)
-
-    elif call.data == "btn_three":
-        bot.send_chat_action(call.message.chat.id, action="typing")
-        m = bot.send_message(
-            call.message.chat.id,
-            "you tapped three button! this message will be edited after 3 seconds!",
-        )
-        time.sleep(3)
+    elif call.data == "cancel_reg":
+        bot.clear_step_handler_by_chat_id(call.message.chat.id)
         bot.edit_message_text(
             chat_id=call.message.chat.id,
-            message_id=m.message_id,
-            text="message have been edited!",
+            message_id=call.message.message_id,
+            text="❌ Registration canceled.",
             reply_markup=home_markup,
         )
         bot.answer_callback_query(call.id)
@@ -136,6 +123,7 @@ def register_info_button(message):
     msg = bot.send_message(
         chat_id,
         "Registering your information:\nPlease enter your full name!",
+        reply_markup=cancel_markup,
     )
     bot.register_next_step_handler(msg, get_name)
 
@@ -144,7 +132,9 @@ def get_name(message):
     chat_id = message.chat.id
     user_data[chat_id]["name"] = message.text.strip()
     bot.send_chat_action(message.chat.id, action="typing")
-    msg = bot.send_message(chat_id, "Please enter your age!")
+    msg = bot.send_message(
+        chat_id, "Please enter your age!", reply_markup=cancel_markup
+    )
     bot.register_next_step_handler(msg, get_age)
 
 
@@ -155,14 +145,18 @@ def get_age(message):
     if not re.match(r"^[1-9][0-9]?$|^1[0-1][0-9]$", age_text):
         bot.send_chat_action(message.chat.id, action="typing")
         msg = bot.send_message(
-            chat_id, "Invalid age! Please enter a valid number (e.g., 25):"
+            chat_id,
+            "Invalid age! Please enter a valid number (e.g., 25):",
+            reply_markup=cancel_markup,
         )
         bot.register_next_step_handler(msg, get_age)
         return
 
     user_data[chat_id]["age"] = age_text
     bot.send_chat_action(message.chat.id, action="typing")
-    msg = bot.send_message(chat_id, "Please enter your phone number!")
+    msg = bot.send_message(
+        chat_id, "Please enter your phone number!", reply_markup=cancel_markup
+    )
     bot.register_next_step_handler(msg, get_phone)
 
 
@@ -175,6 +169,7 @@ def get_phone(message):
         msg = bot.send_message(
             chat_id,
             "Invalid phone number format! Please use the 09xxxxxxxxx format (e.g., 09121111111). Try again:",
+            reply_markup=cancel_markup,
         )
         bot.register_next_step_handler(msg, get_phone)
         return
