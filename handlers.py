@@ -4,8 +4,7 @@ from config import bot, user_data
 import telebot
 import database
 from keyboards import (
-    markup,
-    key_markup,
+    main_inline_markup,
     github_button,
     telegram_button,
     random2_button,
@@ -38,8 +37,8 @@ def callback(call):
         bot.answer_callback_query(
             call.id, "you clicked on random2 button", show_alert=True
         )
-    elif call.data == "clear_info":
 
+    elif call.data == "clear_info":
         database.delete_user(call.message.chat.id)
 
         if call.message.chat.id in user_data:
@@ -53,12 +52,12 @@ def callback(call):
         bot.answer_callback_query(call.id, "Information cleared!", show_alert=True)
 
     elif call.data == "back_profile":
-
         bot.delete_message(
             chat_id=call.message.chat.id, message_id=call.message.message_id
         )
-    elif call.data == "edit_info":
+        bot.answer_callback_query(call.id)
 
+    elif call.data == "edit_info":
         bot.delete_message(
             chat_id=call.message.chat.id, message_id=call.message.message_id
         )
@@ -66,12 +65,49 @@ def callback(call):
 
         bot.answer_callback_query(call.id)
 
+    elif call.data == "register_info":
+        register_info_button(call.message)
+        bot.answer_callback_query(call.id)
+
+    elif call.data == "my_profile":
+        show_profile(call.message)
+        bot.answer_callback_query(call.id)
+
+    elif call.data == "btn_two":
+        bot.send_chat_action(call.message.chat.id, action="typing")
+        m = bot.send_message(call.message.chat.id, "you tapped two button!")
+        time.sleep(2)
+        bot.delete_messages(
+            call.message.chat.id, [call.message.message_id, m.message_id]
+        )
+        bot.answer_callback_query(call.id)
+
+    elif call.data == "btn_three":
+        bot.send_chat_action(call.message.chat.id, action="typing")
+        m = bot.send_message(
+            call.message.chat.id,
+            "you tapped three button! this message will be edited after 3 seconds!",
+        )
+        time.sleep(3)
+        bot.edit_message_text(
+            chat_id=call.message.chat.id,
+            message_id=m.message_id,
+            text="message have been edited!",
+        )
+        bot.answer_callback_query(call.id)
+
+    elif call.data == "close_menu":
+        bot.delete_message(
+            chat_id=call.message.chat.id, message_id=call.message.message_id
+        )
+        bot.answer_callback_query(call.id)
+
 
 @bot.message_handler(commands=["start"])
 def send_welcome(message):
     bot.send_chat_action(message.chat.id, action="typing")
     bot.send_message(
-        message.chat.id, "Hi Welcome to Reminder Bot!", reply_markup=markup
+        message.chat.id, "Hi Welcome to Reminder Bot!", reply_markup=main_inline_markup
     )
 
 
@@ -82,13 +118,12 @@ def send_help(message):
         "🔹 /start - Start the bot\n"
         "🔹 /help - Show this help message\n"
         "🔹 /add - Add a new reminder (Coming soon...)\n\n"
-        "Choose a command to get started!"
+        "Choose an option from the menu below:"
     )
     bot.send_chat_action(message.chat.id, action="typing")
-    bot.reply_to(message, help_text, parse_mode="HTML", reply_markup=key_markup)
+    bot.reply_to(message, help_text, parse_mode="HTML", reply_markup=main_inline_markup)
 
 
-@bot.message_handler(func=lambda m: m.text == "✍️ Information Registration")
 def register_info_button(message):
     chat_id = message.chat.id
     user_data[chat_id] = {}
@@ -156,30 +191,6 @@ def final_step(message):
     bot.send_message(chat_id, msg)
 
 
-@bot.message_handler(func=lambda m: m.text == "two")
-def button_two(message):
-    bot.send_chat_action(message.chat.id, action="typing")
-    m = bot.send_message(message.chat.id, "you tapped two button!")
-    time.sleep(2)
-    bot.delete_messages(message.chat.id, [message.message_id, m.message_id])
-
-
-@bot.message_handler(func=lambda m: m.text == "three")
-def button_three(message):
-    bot.send_chat_action(message.chat.id, action="typing")
-    m = bot.send_message(
-        message.chat.id,
-        "you tapped three button!this message will be edited after 3 seconds!",
-    )
-    time.sleep(3)
-    bot.edit_message_text(
-        chat_id=message.chat.id,
-        message_id=m.message_id,
-        text="message have been edited!",
-    )
-
-
-@bot.message_handler(func=lambda m: m.text == "👤 My Profile")
 def show_profile(message):
     chat_id = message.chat.id
     bot.send_chat_action(chat_id, action="typing")
@@ -200,16 +211,3 @@ def show_profile(message):
     else:
         text = "❌ You haven't registered yet!\nPlease tap 'Information Registration' to set up your profile."
         bot.send_message(chat_id, text, parse_mode="HTML")
-
-
-@bot.message_handler(func=lambda m: m.text == "🔚 Back")
-def close_keyboard(message):
-    bot.send_chat_action(message.chat.id, action="typing")
-
-    remove_markup = telebot.types.ReplyKeyboardRemove()
-
-    bot.send_message(
-        message.chat.id,
-        "Menu closed! Type /help to open it again.",
-        reply_markup=remove_markup,
-    )
