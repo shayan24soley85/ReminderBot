@@ -5,38 +5,49 @@ import telebot
 import database
 from keyboards import (
     main_inline_markup,
-    github_button,
-    telegram_button,
-    random2_button,
+    about_markup,
     profile_markup,
+    home_markup,
 )
 
 
 @bot.callback_query_handler(func=lambda call: True)
 def callback(call):
-    if call.data == "random":
-        edited_random_btn = telebot.types.InlineKeyboardButton(
-            "edited_random", callback_data="random"
-        )
-        new_markup = telebot.types.InlineKeyboardMarkup(row_width=2)
-        new_markup.add(
-            github_button, telegram_button, edited_random_btn, random2_button
-        )
-
-        bot.edit_message_reply_markup(
+    if call.data == "home":
+        bot.edit_message_text(
             chat_id=call.message.chat.id,
             message_id=call.message.message_id,
-            reply_markup=new_markup,
+            text="Hi Welcome to Reminder Bot!\nChoose an option from the menu below:",
+            reply_markup=main_inline_markup,
         )
+        bot.answer_callback_query(call.id)
 
-        bot.answer_callback_query(call.id, "Button name changed!")
-
-    elif call.data == "random2":
-        bot.send_chat_action(call.message.chat.id, action="typing")
-        bot.send_message(call.message.chat.id, "you clicked on random2 button")
-        bot.answer_callback_query(
-            call.id, "you clicked on random2 button", show_alert=True
+    elif call.data == "about_us":
+        bot.edit_message_text(
+            chat_id=call.message.chat.id,
+            message_id=call.message.message_id,
+            text="👨‍💻 <b>About Us</b>\n\nWelcome to Reminder Bot.\nYou can follow our work and contact us through the links below:",
+            parse_mode="HTML",
+            reply_markup=about_markup,
         )
+        bot.answer_callback_query(call.id)
+
+    elif call.data == "help_menu":
+        help_text = (
+            "🤖 <b>Your Reminder Bot Guide:</b>\n\n"
+            "🔹 /start - Start the bot\n"
+            "🔹 /help - Show this help message\n"
+            "🔹 /add - Add a new reminder (Coming soon...)\n\n"
+            "Navigate using the menu buttons!"
+        )
+        bot.edit_message_text(
+            chat_id=call.message.chat.id,
+            message_id=call.message.message_id,
+            text=help_text,
+            parse_mode="HTML",
+            reply_markup=home_markup,
+        )
+        bot.answer_callback_query(call.id)
 
     elif call.data == "clear_info":
         database.delete_user(call.message.chat.id)
@@ -48,29 +59,26 @@ def callback(call):
             chat_id=call.message.chat.id,
             message_id=call.message.message_id,
             text="🗑 Your profile information has been completely deleted!",
+            reply_markup=home_markup,
         )
         bot.answer_callback_query(call.id, "Information cleared!", show_alert=True)
-
-    elif call.data == "back_profile":
-        bot.delete_message(
-            chat_id=call.message.chat.id, message_id=call.message.message_id
-        )
-        bot.answer_callback_query(call.id)
 
     elif call.data == "edit_info":
         bot.delete_message(
             chat_id=call.message.chat.id, message_id=call.message.message_id
         )
         register_info_button(call.message)
-
         bot.answer_callback_query(call.id)
 
     elif call.data == "register_info":
+        bot.delete_message(
+            chat_id=call.message.chat.id, message_id=call.message.message_id
+        )
         register_info_button(call.message)
         bot.answer_callback_query(call.id)
 
     elif call.data == "my_profile":
-        show_profile(call.message)
+        show_profile(call.message, call.message.message_id)
         bot.answer_callback_query(call.id)
 
     elif call.data == "btn_two":
@@ -93,12 +101,7 @@ def callback(call):
             chat_id=call.message.chat.id,
             message_id=m.message_id,
             text="message have been edited!",
-        )
-        bot.answer_callback_query(call.id)
-
-    elif call.data == "close_menu":
-        bot.delete_message(
-            chat_id=call.message.chat.id, message_id=call.message.message_id
+            reply_markup=home_markup,
         )
         bot.answer_callback_query(call.id)
 
@@ -107,7 +110,9 @@ def callback(call):
 def send_welcome(message):
     bot.send_chat_action(message.chat.id, action="typing")
     bot.send_message(
-        message.chat.id, "Hi Welcome to Reminder Bot!", reply_markup=main_inline_markup
+        message.chat.id,
+        "Hi Welcome to Reminder Bot!\nChoose an option from the menu below:",
+        reply_markup=main_inline_markup,
     )
 
 
@@ -188,10 +193,10 @@ def final_step(message):
 
     msg = f"✅ Registration Complete and Saved!\n\nYour name: {name}\nYour age: {age}\nYour phone number: {phone}\n"
     bot.send_chat_action(message.chat.id, action="typing")
-    bot.send_message(chat_id, msg)
+    bot.send_message(chat_id, msg, reply_markup=home_markup)
 
 
-def show_profile(message):
+def show_profile(message, message_id=None):
     chat_id = message.chat.id
     bot.send_chat_action(chat_id, action="typing")
 
@@ -206,8 +211,16 @@ def show_profile(message):
             f"🔹 <b>Phone:</b> {phone}\n\n"
             f"<i>💡 Choose an option below:</i>"
         )
-
-        bot.send_message(chat_id, text, parse_mode="HTML", reply_markup=profile_markup)
     else:
         text = "❌ You haven't registered yet!\nPlease tap 'Information Registration' to set up your profile."
-        bot.send_message(chat_id, text, parse_mode="HTML")
+
+    if message_id:
+        bot.edit_message_text(
+            chat_id=chat_id,
+            message_id=message_id,
+            text=text,
+            parse_mode="HTML",
+            reply_markup=profile_markup,
+        )
+    else:
+        bot.send_message(chat_id, text, parse_mode="HTML", reply_markup=profile_markup)
