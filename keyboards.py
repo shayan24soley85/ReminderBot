@@ -10,7 +10,8 @@ prof_btn = telebot.types.InlineKeyboardButton(
 about_btn = telebot.types.InlineKeyboardButton("ℹ️ About Us", callback_data="about_us")
 help_btn = telebot.types.InlineKeyboardButton("❓ Help", callback_data="help_menu")
 
-main_inline_markup.add(reg_btn, prof_btn)
+main_inline_markup.add(reg_btn)
+main_inline_markup.add(prof_btn)
 main_inline_markup.add(about_btn, help_btn)
 
 home_btn = telebot.types.InlineKeyboardButton("🏠 Home", callback_data="home")
