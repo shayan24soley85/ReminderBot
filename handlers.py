@@ -9,6 +9,7 @@ from keyboards import (
     profile_markup,
     home_markup,
     cancel_markup,
+    reminder_markup,
 )
 
 
@@ -89,6 +90,20 @@ def callback(call):
             message_id=call.message.message_id,
             text="❌ Registration canceled.",
             reply_markup=home_markup,
+        )
+        bot.answer_callback_query(call.id)
+    elif call.data == "Reminder_menu":
+        text = (
+            "🔔 <b>Reminders Menu</b>\n\n"
+            "Here you can manage all your tasks and events.\n"
+            "<i>Please select a category below:</i>"
+        )
+        bot.edit_message_text(
+            chat_id=call.message.chat.id,
+            message_id=call.message.message_id,
+            text=text,
+            parse_mode="HTML",
+            reply_markup=reminder_markup,
         )
         bot.answer_callback_query(call.id)
 

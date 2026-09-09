@@ -9,10 +9,14 @@ prof_btn = telebot.types.InlineKeyboardButton(
 )
 about_btn = telebot.types.InlineKeyboardButton("ℹ️ About Us", callback_data="about_us")
 help_btn = telebot.types.InlineKeyboardButton("❓ Help", callback_data="help_menu")
-
+Reminder_btn = telebot.types.InlineKeyboardButton(
+    "🔔 Reminder Menu", callback_data="Reminder_menu"
+)
+main_inline_markup.add(Reminder_btn)
 main_inline_markup.add(reg_btn)
 main_inline_markup.add(prof_btn)
 main_inline_markup.add(about_btn, help_btn)
+
 
 home_btn = telebot.types.InlineKeyboardButton("🏠 Home", callback_data="home")
 
@@ -40,3 +44,18 @@ profile_markup.add(home_btn)
 cancel_markup = telebot.types.InlineKeyboardMarkup()
 cancel_btn = telebot.types.InlineKeyboardButton("❌ Cancel", callback_data="cancel_reg")
 cancel_markup.add(cancel_btn)
+
+
+reminder_markup = telebot.types.InlineKeyboardMarkup(row_width=2)
+daily_btn = telebot.types.InlineKeyboardButton(
+    "🏠 Daily Tasks", callback_data="cat_daily"
+)
+uni_btn = telebot.types.InlineKeyboardButton("🎓 University", callback_data="cat_uni")
+bday_btn = telebot.types.InlineKeyboardButton("🎂 Birthdays", callback_data="cat_bday")
+work_btn = telebot.types.InlineKeyboardButton("💼 Work", callback_data="cat_work")
+health_btn = telebot.types.InlineKeyboardButton("💊 Health", callback_data="cat_health")
+
+reminder_markup.add(daily_btn, uni_btn)
+reminder_markup.add(bday_btn, work_btn)
+reminder_markup.add(health_btn)
+reminder_markup.add(home_btn)
