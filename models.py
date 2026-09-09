@@ -3,18 +3,34 @@ from typing import Optional
 
 
 @dataclass
+class Course:
+    name: str
+    professor: Optional[str] = None
+
+
+@dataclass
 class Reminder:
     user_id: int
     title: str
     date_time: str
-    category: str
     status: str = "Pending"
 
 
 @dataclass
-class UniversityReminder(Reminder):
-    event_type: str
-    term: Optional[str] = None
+class ExamReminder(Reminder):
+    course: Course
+    exam_type: str
+
+
+@dataclass
+class AssignmentReminder(Reminder):
+    course: Course
+    description: Optional[str] = None
+
+
+@dataclass
+class OtherUniReminder(Reminder):
+    location: Optional[str] = None
 
 
 @dataclass
