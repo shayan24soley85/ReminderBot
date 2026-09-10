@@ -1,15 +1,32 @@
 from dataclasses import dataclass
 from typing import Optional
 
-from Enums import ExamType
+from Enums import (
+    ExamType,
+    HomeworkType,
+    homework_status,
+    hw_submission_status,
+    exam_status,
+)
 
 
 @dataclass
 class Exam:
-    course_name: str
-    exam_type: str
+    course: Course
+    exam_type: ExamType
     date_time: str
+    exam_status: exam_status
     location: Optional[str] = None
+
+
+@dataclass
+class Homework:
+    course: Course
+    homework_type: HomeworkType
+    due_date: str
+    status: homework_status
+    submission_status: hw_submission_status
+    description: Optional[str] = None
 
 
 @dataclass
