@@ -1,6 +1,16 @@
 from dataclasses import dataclass
 from typing import Optional
 
+from Enums import ExamType
+
+
+@dataclass
+class Exam:
+    course_name: str
+    exam_type: str
+    date_time: str
+    location: Optional[str] = None
+
 
 @dataclass
 class Course:
@@ -19,7 +29,7 @@ class Reminder:
 @dataclass
 class ExamReminder(Reminder):
     course: Course
-    exam_type: str
+    exam_type: ExamType
 
 
 @dataclass
