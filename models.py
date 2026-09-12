@@ -33,6 +33,8 @@ class Homework:
 class Course:
     name: str
     professor: Optional[str] = None
+    exams: Optional[list[Exam]] = None
+    homeworks: Optional[list[Homework]] = None
 
 
 @dataclass
