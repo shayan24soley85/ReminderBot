@@ -8,6 +8,7 @@ from keyboards import (
     reminder_markup,
     university_dashboard_markup,
     course_dashboard_markup,
+    get_my_courses_markup,
 )
 
 
@@ -115,7 +116,19 @@ def callback(call):
             reply_markup=university_dashboard_markup,
         )
         bot.answer_callback_query(call.id)
+
     elif call.data == "uni_courses":
+        courses_list = []
+        bot.edit_message_text(
+            chat_id=call.message.chat.id,
+            message_id=call.message.message_id,
+            text="📚 <b>My Courses</b>\n\nHere is the list of your registered courses:",
+            parse_mode="HTML",
+            reply_markup=get_my_courses_markup(courses_list),
+        )
+        bot.answer_callback_query(call.id)
+
+    elif call.data.startswith("select_course_"):
         bot.edit_message_text(
             chat_id=call.message.chat.id,
             message_id=call.message.message_id,

@@ -60,7 +60,7 @@ reminder_markup.add(home_btn)
 
 university_dashboard_markup = telebot.types.InlineKeyboardMarkup(row_width=2)
 uni_courses_btn = telebot.types.InlineKeyboardButton(
-    "📚 Courses", callback_data="uni_courses"
+    "📚My Courses", callback_data="uni_courses"
 )
 uni_exams_btn = telebot.types.InlineKeyboardButton(
     "📝 Exams", callback_data="uni_exams"
@@ -68,13 +68,33 @@ uni_exams_btn = telebot.types.InlineKeyboardButton(
 uni_homeworks_btn = telebot.types.InlineKeyboardButton(
     "🎒 Homeworks", callback_data="uni_homeworks"
 )
+add_course_btn = telebot.types.InlineKeyboardButton(
+    "➕ Add Course", callback_data="add_course"
+)
 uni_back_btn = telebot.types.InlineKeyboardButton(
     "🔙 Back", callback_data="Reminder_menu"
 )
 
 university_dashboard_markup.add(uni_courses_btn)
+university_dashboard_markup.add(add_course_btn)
 university_dashboard_markup.add(uni_exams_btn, uni_homeworks_btn)
 university_dashboard_markup.add(uni_back_btn, home_btn)
+
+
+def get_my_courses_markup(courses=None):
+    markup = telebot.types.InlineKeyboardMarkup(row_width=1)
+
+    if courses:
+        for course in courses:
+            btn = telebot.types.InlineKeyboardButton(
+                course["name"], callback_data=f"select_course_{course['id']}"
+            )
+            markup.add(btn)
+
+    back_btn = telebot.types.InlineKeyboardButton("🔙 Back", callback_data="cat_uni")
+    markup.add(back_btn, home_btn)
+
+    return markup
 
 
 course_dashboard_markup = telebot.types.InlineKeyboardMarkup(row_width=2)
@@ -85,8 +105,9 @@ course_exams_btn = telebot.types.InlineKeyboardButton(
 course_homeworks_btn = telebot.types.InlineKeyboardButton(
     "🎒 Homeworks", callback_data="course_homeworks"
 )
+
 course_back_btn = telebot.types.InlineKeyboardButton(
-    "🔙 Back", callback_data="Reminder_menu"
+    "🔙 Back", callback_data="uni_courses"
 )
 
 course_dashboard_markup.add(course_exams_btn, course_homeworks_btn)
