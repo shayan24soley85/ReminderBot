@@ -107,3 +107,62 @@ def show_profile(message, message_id=None):
         )
     else:
         bot.send_message(chat_id, text, parse_mode="HTML", reply_markup=profile_markup)
+
+
+def show_departments(call):
+    chat_id = call.message.chat.id
+    message_id = call.message.message_id
+
+    departments = database.get_departments()
+
+    if not departments:
+        bot.answer_callback_query(call.id, "No departments found!", show_alert=True)
+        return
+
+    from keyboards import get_departments_markup
+
+    markup = get_departments_markup(departments)
+
+    text = "🏢 <b>Select a Department:</b>\n\nPlease choose your department from the list below:"
+
+    bot.edit_message_text(
+        chat_id=chat_id,
+        message_id=message_id,
+        text=text,
+        parse_mode="HTML",
+        reply_markup=markup,
+    )
+
+
+def show_department_courses(call):
+    chat_id = call.message.chat.id
+    message_id = call.message.message_id
+
+    parts = call.data.split("_")
+    dep_id = int(parts[2])
+
+    page = 1
+    if len(parts) > 3:
+        page = int(parts[3])
+
+    courses = database.get_courses_by_department(dep_id)
+
+    if not courses:
+        bot.answer_callback_query(
+            call.id, "هیچ درسی برای این دانشکده یافت نشد!", show_alert=True
+        )
+        return
+
+    from keyboards import get_department_courses_markup
+
+    markup = get_department_courses_markup(courses, dep_id, page)
+
+    text = f"📚 <b>Courses List (Page {page}):</b>\n\nلطفا درس مورد نظر خود را برای افزودن به لیست دروس خود انتخاب کنید:"
+
+    bot.edit_message_text(
+        chat_id=chat_id,
+        message_id=message_id,
+        text=text,
+        parse_mode="HTML",
+        reply_markup=markup,
+    )

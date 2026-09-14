@@ -137,6 +137,15 @@ def callback(call):
             reply_markup=course_dashboard_markup,
         )
         bot.answer_callback_query(call.id)
+    elif call.data == "add_course":
+        controllers.show_departments(call)
+        bot.answer_callback_query(call.id)
+
+    elif call.data.startswith("select_dep_"):
+        controllers.show_department_courses(call)
+        bot.answer_callback_query(call.id)
+    elif call.data == "ignore":
+        bot.answer_callback_query(call.id)
 
 
 @bot.message_handler(commands=["start"])

@@ -111,3 +111,82 @@ course_back_btn = telebot.types.InlineKeyboardButton(
 
 course_dashboard_markup.add(course_exams_btn, course_homeworks_btn)
 course_dashboard_markup.add(course_back_btn, home_btn)
+
+
+import math
+import telebot
+
+
+def get_departments_markup(departments):
+    markup = telebot.types.InlineKeyboardMarkup(row_width=1)
+
+    if departments:
+        for dep in departments:
+            btn = telebot.types.InlineKeyboardButton(
+                dep[1], callback_data=f"select_dep_{dep[0]}"
+            )
+            markup.add(btn)
+
+    back_btn = telebot.types.InlineKeyboardButton(
+        "🔙 Back", callback_data="uni_courses"
+    )
+    markup.add(back_btn, home_btn)
+
+    return markup
+
+
+def get_department_courses_markup(courses, dep_id, page=1):
+    markup = telebot.types.InlineKeyboardMarkup(row_width=1)
+
+    import math
+
+    ITEMS_PER_PAGE = 30
+    total_pages = math.ceil(len(courses) / ITEMS_PER_PAGE)
+
+    if total_pages == 0:
+        total_pages = 1
+
+    start_idx = (page - 1) * ITEMS_PER_PAGE
+    end_idx = start_idx + ITEMS_PER_PAGE
+
+    current_courses = courses[start_idx:end_idx]
+
+    if current_courses:
+        for course in current_courses:
+            course_id, c_code, group, c_name, prof, exam, units = course
+            btn_text = f"➕ {c_name} (گروه {group})"
+            btn_callback = f"save_course_{course_id}"
+
+            btn = telebot.types.InlineKeyboardButton(
+                text=btn_text, callback_data=btn_callback
+            )
+            markup.add(btn)
+
+    nav_buttons = []
+    if page > 1:
+        nav_buttons.append(
+            telebot.types.InlineKeyboardButton(
+                "⬅️ قبلی", callback_data=f"select_dep_{dep_id}_{page-1}"
+            )
+        )
+
+    nav_buttons.append(
+        telebot.types.InlineKeyboardButton(
+            f"📄 صفحه {page} از {total_pages}", callback_data="ignore"
+        )
+    )
+
+    if page < total_pages:
+        nav_buttons.append(
+            telebot.types.InlineKeyboardButton(
+                "بعدی ➡️", callback_data=f"select_dep_{dep_id}_{page+1}"
+            )
+        )
+
+    if nav_buttons:
+        markup.row(*nav_buttons)
+
+    back_btn = telebot.types.InlineKeyboardButton("🔙 Back", callback_data="add_course")
+    markup.add(back_btn, home_btn)
+
+    return markup
