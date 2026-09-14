@@ -1,7 +1,11 @@
 .env
 venv/
 __pycache__/
+
 # Databases
 *.db
 *.sqlite3
 bot_data.db
+
+# Excel files
+courses_data/
