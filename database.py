@@ -1,8 +1,14 @@
 import sqlite3
 
+DB_NAME = "bot_data.db"
+
+
+def get_connection():
+    return sqlite3.connect(DB_NAME, check_same_thread=False)
+
 
 def init_db():
-    conn = sqlite3.connect("bot_data.db")
+    conn = get_connection()
     cursor = conn.cursor()
 
     cursor.execute("""
@@ -14,12 +20,43 @@ def init_db():
         )
     """)
 
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS departments (
+            id INTEGER PRIMARY KEY,
+            name TEXT NOT NULL
+        )
+    """)
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS university_courses (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            course_code TEXT,
+            group_number TEXT,
+            department_id INTEGER,
+            name TEXT,
+            professor TEXT,
+            exam_date TEXT,
+            units INTEGER,
+            FOREIGN KEY (department_id) REFERENCES departments(id)
+        )
+    """)
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS user_courses (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            chat_id INTEGER,
+            course_id INTEGER,
+            FOREIGN KEY (chat_id) REFERENCES users(chat_id),
+            FOREIGN KEY (course_id) REFERENCES university_courses(id)
+        )
+    """)
+
     conn.commit()
     conn.close()
 
 
 def save_user(chat_id, name, age, phone):
-    conn = sqlite3.connect("bot_data.db")
+    conn = get_connection()
     cursor = conn.cursor()
 
     cursor.execute(
@@ -35,7 +72,7 @@ def save_user(chat_id, name, age, phone):
 
 
 def get_user(chat_id):
-    conn = sqlite3.connect("bot_data.db")
+    conn = get_connection()
     cursor = conn.cursor()
 
     cursor.execute("SELECT name, age, phone FROM users WHERE chat_id = ?", (chat_id,))
@@ -46,7 +83,7 @@ def get_user(chat_id):
 
 
 def delete_user(chat_id):
-    conn = sqlite3.connect("bot_data.db")
+    conn = get_connection()
     cursor = conn.cursor()
 
     cursor.execute("DELETE FROM users WHERE chat_id = ?", (chat_id,))
