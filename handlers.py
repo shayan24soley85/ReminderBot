@@ -18,7 +18,7 @@ def callback(call):
         bot.edit_message_text(
             chat_id=call.message.chat.id,
             message_id=call.message.message_id,
-            text="Hi Welcome to Reminder Bot!\nChoose an option from the menu below:",
+            text="سلام! به ربات یادآور خوش آمدید!\nیک گزینه از منوی زیر انتخاب کنید:",
             reply_markup=main_inline_markup,
         )
         bot.answer_callback_query(call.id)
@@ -27,7 +27,7 @@ def callback(call):
         bot.edit_message_text(
             chat_id=call.message.chat.id,
             message_id=call.message.message_id,
-            text="👨‍💻 <b>About Us</b>\n\nWelcome to Reminder Bot.\nYou can follow our work and contact us through the links below:",
+            text="👨‍💻 <b>درباره ما</b>\n\nبه ربات یادآور خوش آمدید.\nشما می‌توانید کارهای ما را دنبال کرده و از طریق لینک‌های زیر با ما در ارتباط باشید:",
             parse_mode="HTML",
             reply_markup=about_markup,
         )
@@ -35,11 +35,11 @@ def callback(call):
 
     elif call.data == "help_menu":
         help_text = (
-            "🤖 <b>Your Reminder Bot Guide:</b>\n\n"
-            "🔹 /start - Start the bot\n"
-            "🔹 /help - Show this help message\n"
-            "🔹 /add - Add a new reminder (Coming soon...)\n\n"
-            "Navigate using the menu buttons!"
+            "🤖 <b>راهنمای ربات یادآور شما:</b>\n\n"
+            "🔹 /start - شروع کار با ربات\n"
+            "🔹 /help - نمایش این پیام راهنما\n"
+            "🔹 /add - افزودن یادآور جدید (به زودی...)\n\n"
+            "با استفاده از دکمه‌های منو جابجا شوید!"
         )
         bot.edit_message_text(
             chat_id=call.message.chat.id,
@@ -59,10 +59,10 @@ def callback(call):
         bot.edit_message_text(
             chat_id=call.message.chat.id,
             message_id=call.message.message_id,
-            text="🗑 Your profile information has been completely deleted!",
+            text="🗑 اطلاعات پروفایل شما به طور کامل حذف شد!",
             reply_markup=home_markup,
         )
-        bot.answer_callback_query(call.id, "Information cleared!", show_alert=True)
+        bot.answer_callback_query(call.id, "اطلاعات پاک شد!", show_alert=True)
 
     elif call.data == "edit_info":
         bot.delete_message(
@@ -87,16 +87,16 @@ def callback(call):
         bot.edit_message_text(
             chat_id=call.message.chat.id,
             message_id=call.message.message_id,
-            text="❌ Registration canceled.",
+            text="❌ ثبت نام لغو شد.",
             reply_markup=home_markup,
         )
         bot.answer_callback_query(call.id)
 
     elif call.data == "Reminder_menu":
         text = (
-            "🔔 <b>Reminders Menu</b>\n\n"
-            "Here you can manage all your tasks and events.\n"
-            "<i>Please select a category below:</i>"
+            "🔔 <b>منوی یادآورها</b>\n\n"
+            "در اینجا می‌توانید تمام کارها و رویدادهای خود را مدیریت کنید.\n"
+            "<i>لطفاً یک دسته‌بندی از زیر انتخاب کنید:</i>"
         )
         bot.edit_message_text(
             chat_id=call.message.chat.id,
@@ -111,7 +111,7 @@ def callback(call):
         bot.edit_message_text(
             chat_id=call.message.chat.id,
             message_id=call.message.message_id,
-            text="🎓 <b>University Dashboard</b>\n\nPlease select a section to manage:",
+            text="🎓 <b>داشبورد دانشگاه</b>\n\nلطفاً یک بخش را برای مدیریت انتخاب کنید:",
             parse_mode="HTML",
             reply_markup=university_dashboard_markup,
         )
@@ -122,7 +122,7 @@ def callback(call):
         bot.edit_message_text(
             chat_id=call.message.chat.id,
             message_id=call.message.message_id,
-            text="📚 <b>My Courses</b>\n\nHere is the list of your registered courses:",
+            text="📚 <b>دروس من</b>\n\nدر اینجا لیست دروس ثبت‌نامی شما قرار دارد:",
             parse_mode="HTML",
             reply_markup=get_my_courses_markup(courses_list),
         )
@@ -132,11 +132,12 @@ def callback(call):
         bot.edit_message_text(
             chat_id=call.message.chat.id,
             message_id=call.message.message_id,
-            text="📚 <b>Course Dashboard</b>\n\nPlease select a section to manage:",
+            text="📚 <b>داشبورد درس</b>\n\nلطفاً یک بخش را برای مدیریت انتخاب کنید:",
             parse_mode="HTML",
             reply_markup=course_dashboard_markup,
         )
         bot.answer_callback_query(call.id)
+
     elif call.data == "add_course":
         controllers.show_departments(call)
         bot.answer_callback_query(call.id)
@@ -144,6 +145,7 @@ def callback(call):
     elif call.data.startswith("select_dep_"):
         controllers.show_department_courses(call)
         bot.answer_callback_query(call.id)
+
     elif call.data == "ignore":
         bot.answer_callback_query(call.id)
 
@@ -153,7 +155,7 @@ def send_welcome(message):
     bot.send_chat_action(message.chat.id, action="typing")
     bot.send_message(
         message.chat.id,
-        "Hi Welcome to Reminder Bot!\nChoose an option from the menu below:",
+        "سلام! به ربات یادآور خوش آمدید!\nیک گزینه از منوی زیر انتخاب کنید:",
         reply_markup=main_inline_markup,
     )
 
@@ -161,11 +163,11 @@ def send_welcome(message):
 @bot.message_handler(commands=["help"])
 def send_help(message):
     help_text = (
-        "🤖 <b>Your Reminder Bot Guide:</b>\n\n"
-        "🔹 /start - Start the bot\n"
-        "🔹 /help - Show this help message\n"
-        "🔹 /add - Add a new reminder (Coming soon...)\n\n"
-        "Choose an option from the menu below:"
+        "🤖 <b>راهنمای ربات یادآور شما:</b>\n\n"
+        "🔹 /start - شروع کار با ربات\n"
+        "🔹 /help - نمایش این پیام راهنما\n"
+        "🔹 /add - افزودن یادآور جدید (به زودی...)\n\n"
+        "یک گزینه از منوی زیر انتخاب کنید:"
     )
     bot.send_chat_action(message.chat.id, action="typing")
     bot.reply_to(message, help_text, parse_mode="HTML", reply_markup=main_inline_markup)

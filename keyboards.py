@@ -1,57 +1,60 @@
 import telebot
+import math
 
 main_inline_markup = telebot.types.InlineKeyboardMarkup(row_width=2)
 reg_btn = telebot.types.InlineKeyboardButton(
-    "✍️ Information Registration", callback_data="register_info"
+    "✍️ ثبت اطلاعات", callback_data="register_info"
 )
 prof_btn = telebot.types.InlineKeyboardButton(
-    "👤 My Profile", callback_data="my_profile"
+    "👤 پروفایل من", callback_data="my_profile"
 )
-about_btn = telebot.types.InlineKeyboardButton("ℹ️ About Us", callback_data="about_us")
-help_btn = telebot.types.InlineKeyboardButton("❓ Help", callback_data="help_menu")
+about_btn = telebot.types.InlineKeyboardButton("ℹ️ درباره ما", callback_data="about_us")
+help_btn = telebot.types.InlineKeyboardButton("❓ راهنما", callback_data="help_menu")
 Reminder_btn = telebot.types.InlineKeyboardButton(
-    "🔔 Reminder Menu", callback_data="Reminder_menu"
+    "🔔 منوی یادآورها", callback_data="Reminder_menu"
 )
 main_inline_markup.add(Reminder_btn)
 main_inline_markup.add(reg_btn)
 main_inline_markup.add(prof_btn)
 main_inline_markup.add(about_btn, help_btn)
 
-home_btn = telebot.types.InlineKeyboardButton("🏠 Home", callback_data="home")
+home_btn = telebot.types.InlineKeyboardButton("🏠 خانه", callback_data="home")
 
 home_markup = telebot.types.InlineKeyboardMarkup()
 home_markup.add(home_btn)
 
 about_markup = telebot.types.InlineKeyboardMarkup(row_width=2)
 github_button = telebot.types.InlineKeyboardButton(
-    "Github", url="https://github.com/shayan24soley85"
+    "گیت‌هاب", url="https://github.com/shayan24soley85"
 )
 telegram_button = telebot.types.InlineKeyboardButton(
-    "Telegram", url="https://t.me/shayan357v"
+    "تلگرام", url="https://t.me/shayan357v"
 )
 about_markup.add(github_button, telegram_button)
 about_markup.add(home_btn)
 
 profile_markup = telebot.types.InlineKeyboardMarkup(row_width=2)
-edit_btn = telebot.types.InlineKeyboardButton("✏️ Edit Info", callback_data="edit_info")
+edit_btn = telebot.types.InlineKeyboardButton(
+    "✏️ ویرایش اطلاعات", callback_data="edit_info"
+)
 clear_btn = telebot.types.InlineKeyboardButton(
-    "🚮 Clear Info", callback_data="clear_info"
+    "🚮 پاک کردن اطلاعات", callback_data="clear_info"
 )
 profile_markup.add(edit_btn, clear_btn)
 profile_markup.add(home_btn)
 
 cancel_markup = telebot.types.InlineKeyboardMarkup()
-cancel_btn = telebot.types.InlineKeyboardButton("❌ Cancel", callback_data="cancel_reg")
+cancel_btn = telebot.types.InlineKeyboardButton("❌ لغو", callback_data="cancel_reg")
 cancel_markup.add(cancel_btn)
 
 reminder_markup = telebot.types.InlineKeyboardMarkup(row_width=2)
 daily_btn = telebot.types.InlineKeyboardButton(
-    "🏠 Daily Tasks", callback_data="cat_daily"
+    "🏠 کارهای روزانه", callback_data="cat_daily"
 )
-uni_btn = telebot.types.InlineKeyboardButton("🎓 University", callback_data="cat_uni")
-bday_btn = telebot.types.InlineKeyboardButton("🎂 Birthdays", callback_data="cat_bday")
-work_btn = telebot.types.InlineKeyboardButton("💼 Work", callback_data="cat_work")
-health_btn = telebot.types.InlineKeyboardButton("💊 Health", callback_data="cat_health")
+uni_btn = telebot.types.InlineKeyboardButton("🎓 دانشگاه", callback_data="cat_uni")
+bday_btn = telebot.types.InlineKeyboardButton("🎂 تولدها", callback_data="cat_bday")
+work_btn = telebot.types.InlineKeyboardButton("💼 کار", callback_data="cat_work")
+health_btn = telebot.types.InlineKeyboardButton("💊 سلامتی", callback_data="cat_health")
 
 reminder_markup.add(daily_btn, uni_btn)
 reminder_markup.add(bday_btn, work_btn)
@@ -60,16 +63,16 @@ reminder_markup.add(home_btn)
 
 university_dashboard_markup = telebot.types.InlineKeyboardMarkup(row_width=2)
 uni_courses_btn = telebot.types.InlineKeyboardButton(
-    "📚My Courses", callback_data="uni_courses"
+    "📚 دروس من", callback_data="uni_courses"
 )
 uni_exams_btn = telebot.types.InlineKeyboardButton(
-    "📝 Exams", callback_data="uni_exams"
+    "📝 امتحانات", callback_data="uni_exams"
 )
 uni_homeworks_btn = telebot.types.InlineKeyboardButton(
-    "🎒 Homeworks", callback_data="uni_homeworks"
+    "🎒 تکالیف", callback_data="uni_homeworks"
 )
 uni_back_btn = telebot.types.InlineKeyboardButton(
-    "🔙 Back", callback_data="Reminder_menu"
+    "🔙 بازگشت", callback_data="Reminder_menu"
 )
 
 university_dashboard_markup.add(uni_courses_btn)
@@ -87,9 +90,9 @@ def get_my_courses_markup(courses=None):
             )
             markup.add(btn)
     add_course_btn = telebot.types.InlineKeyboardButton(
-        "➕ Add Course", callback_data="add_course"
+        "➕ افزودن درس", callback_data="add_course"
     )
-    back_btn = telebot.types.InlineKeyboardButton("🔙 Back", callback_data="cat_uni")
+    back_btn = telebot.types.InlineKeyboardButton("🔙 بازگشت", callback_data="cat_uni")
     markup.add(add_course_btn)
     markup.add(back_btn, home_btn)
 
@@ -99,22 +102,18 @@ def get_my_courses_markup(courses=None):
 course_dashboard_markup = telebot.types.InlineKeyboardMarkup(row_width=2)
 
 course_exams_btn = telebot.types.InlineKeyboardButton(
-    "📝 Exams", callback_data="course_exams"
+    "📝 امتحانات", callback_data="course_exams"
 )
 course_homeworks_btn = telebot.types.InlineKeyboardButton(
-    "🎒 Homeworks", callback_data="course_homeworks"
+    "🎒 تکالیف", callback_data="course_homeworks"
 )
 
 course_back_btn = telebot.types.InlineKeyboardButton(
-    "🔙 Back", callback_data="uni_courses"
+    "🔙 بازگشت", callback_data="uni_courses"
 )
 
 course_dashboard_markup.add(course_exams_btn, course_homeworks_btn)
 course_dashboard_markup.add(course_back_btn, home_btn)
-
-
-import math
-import telebot
 
 
 def get_departments_markup(departments):
@@ -128,7 +127,7 @@ def get_departments_markup(departments):
             markup.add(btn)
 
     back_btn = telebot.types.InlineKeyboardButton(
-        "🔙 Back", callback_data="uni_courses"
+        "🔙 بازگشت", callback_data="uni_courses"
     )
     markup.add(back_btn, home_btn)
 
@@ -137,8 +136,6 @@ def get_departments_markup(departments):
 
 def get_department_courses_markup(courses, dep_id, page=1):
     markup = telebot.types.InlineKeyboardMarkup(row_width=1)
-
-    import math
 
     ITEMS_PER_PAGE = 30
     total_pages = math.ceil(len(courses) / ITEMS_PER_PAGE)
@@ -186,7 +183,9 @@ def get_department_courses_markup(courses, dep_id, page=1):
     if nav_buttons:
         markup.row(*nav_buttons)
 
-    back_btn = telebot.types.InlineKeyboardButton("🔙 Back", callback_data="add_course")
+    back_btn = telebot.types.InlineKeyboardButton(
+        "🔙 بازگشت", callback_data="add_course"
+    )
     markup.add(back_btn, home_btn)
 
     return markup

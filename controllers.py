@@ -10,7 +10,7 @@ def register_info_button(message):
     bot.send_chat_action(message.chat.id, action="typing")
     msg = bot.send_message(
         chat_id,
-        "Registering your information:\nPlease enter your full name!",
+        "در حال ثبت اطلاعات شما:\nلطفاً نام کامل خود را وارد کنید!",
         reply_markup=cancel_markup,
     )
     bot.register_next_step_handler(msg, get_name)
@@ -21,7 +21,7 @@ def get_name(message):
     user_data[chat_id]["name"] = message.text.strip()
     bot.send_chat_action(message.chat.id, action="typing")
     msg = bot.send_message(
-        chat_id, "Please enter your age!", reply_markup=cancel_markup
+        chat_id, "لطفاً سن خود را وارد کنید!", reply_markup=cancel_markup
     )
     bot.register_next_step_handler(msg, get_age)
 
@@ -34,7 +34,7 @@ def get_age(message):
         bot.send_chat_action(message.chat.id, action="typing")
         msg = bot.send_message(
             chat_id,
-            "Invalid age! Please enter a valid number (e.g., 25):",
+            "سن نامعتبر است! لطفاً یک عدد صحیح وارد کنید (مثلاً ۲۵):",
             reply_markup=cancel_markup,
         )
         bot.register_next_step_handler(msg, get_age)
@@ -43,7 +43,7 @@ def get_age(message):
     user_data[chat_id]["age"] = age_text
     bot.send_chat_action(message.chat.id, action="typing")
     msg = bot.send_message(
-        chat_id, "Please enter your phone number!", reply_markup=cancel_markup
+        chat_id, "لطفاً شماره موبایل خود را وارد کنید!", reply_markup=cancel_markup
     )
     bot.register_next_step_handler(msg, get_phone)
 
@@ -56,7 +56,7 @@ def get_phone(message):
         bot.send_chat_action(message.chat.id, action="typing")
         msg = bot.send_message(
             chat_id,
-            "Invalid phone number format! Please use the 09xxxxxxxxx format (e.g., 09121111111). Try again:",
+            "فرمت شماره موبایل نامعتبر است! لطفاً از فرمت 09xxxxxxxxx استفاده کنید (مثلاً 09121111111). دوباره تلاش کنید:",
             reply_markup=cancel_markup,
         )
         bot.register_next_step_handler(msg, get_phone)
@@ -74,7 +74,7 @@ def final_step(message):
 
     database.save_user(chat_id, name, age, phone)
 
-    msg = f"✅ Registration Complete and Saved!\n\nYour name: {name}\nYour age: {age}\nYour phone number: {phone}\n"
+    msg = f"✅ ثبت نام با موفقیت انجام و ذخیره شد!\n\nنام شما: {name}\nسن شما: {age}\nشماره موبایل شما: {phone}\n"
     bot.send_chat_action(message.chat.id, action="typing")
     bot.send_message(chat_id, msg, reply_markup=home_markup)
 
@@ -88,14 +88,14 @@ def show_profile(message, message_id=None):
     if user:
         name, age, phone = user
         text = (
-            f"👤 <b>Your Profile</b>\n\n"
-            f"🔹 <b>Name:</b> {name}\n"
-            f"🔹 <b>Age:</b> {age}\n"
-            f"🔹 <b>Phone:</b> {phone}\n\n"
-            f"<i>💡 Choose an option below:</i>"
+            f"👤 <b>پروفایل شما</b>\n\n"
+            f"🔹 <b>نام:</b> {name}\n"
+            f"🔹 <b>سن:</b> {age}\n"
+            f"🔹 <b>موبایل:</b> {phone}\n\n"
+            f"<i>💡 یک گزینه از منوی زیر انتخاب کنید:</i>"
         )
     else:
-        text = "❌ You haven't registered yet!\nPlease tap 'Information Registration' to set up your profile."
+        text = "❌ شما هنوز ثبت نام نکرده‌اید!\nلطفاً برای ایجاد پروفایل روی 'ثبت اطلاعات' کلیک کنید."
 
     if message_id:
         bot.edit_message_text(
@@ -116,14 +116,14 @@ def show_departments(call):
     departments = database.get_departments()
 
     if not departments:
-        bot.answer_callback_query(call.id, "No departments found!", show_alert=True)
+        bot.answer_callback_query(call.id, "هیچ دانشکده‌ای یافت نشد!", show_alert=True)
         return
 
     from keyboards import get_departments_markup
 
     markup = get_departments_markup(departments)
 
-    text = "🏢 <b>Select a Department:</b>\n\nPlease choose your department from the list below:"
+    text = "🏢 <b>انتخاب دانشکده:</b>\n\nلطفاً دانشکده خود را از لیست زیر انتخاب کنید:"
 
     bot.edit_message_text(
         chat_id=chat_id,
@@ -157,7 +157,7 @@ def show_department_courses(call):
 
     markup = get_department_courses_markup(courses, dep_id, page)
 
-    text = f"📚 <b>Courses List (Page {page}):</b>\n\nلطفا درس مورد نظر خود را برای افزودن به لیست دروس خود انتخاب کنید:"
+    text = f"📚 <b>لیست دروس (صفحه {page}):</b>\n\nلطفاً درس مورد نظر خود را برای افزودن به لیست دروس خود انتخاب کنید:"
 
     bot.edit_message_text(
         chat_id=chat_id,
