@@ -4,6 +4,11 @@ import database
 from keyboards import home_markup, profile_markup, cancel_markup
 
 
+def convert_persian_numbers(text):
+    mapping = str.maketrans("۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩", "01234567890123456789")
+    return text.translate(mapping)
+
+
 def register_info_button(message):
     chat_id = message.chat.id
     user_data[chat_id] = {}
@@ -28,7 +33,7 @@ def get_name(message):
 
 def get_age(message):
     chat_id = message.chat.id
-    age_text = message.text.strip()
+    age_text = convert_persian_numbers(message.text.strip())
 
     if not re.match(r"^[1-9][0-9]?$|^1[0-1][0-9]$", age_text):
         bot.send_chat_action(message.chat.id, action="typing")
@@ -50,7 +55,7 @@ def get_age(message):
 
 def get_phone(message):
     chat_id = message.chat.id
-    phone_text = message.text.strip()
+    phone_text = convert_persian_numbers(message.text.strip())
 
     if not re.match(r"^(?:0|\+98)9\d{9}$", phone_text):
         bot.send_chat_action(message.chat.id, action="typing")
