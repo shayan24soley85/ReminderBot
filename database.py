@@ -90,3 +90,28 @@ def delete_user(chat_id):
 
     conn.commit()
     conn.close()
+
+
+def get_departments():
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT id, name FROM departments")
+    deps = cursor.fetchall()
+    conn.close()
+    return deps
+
+
+def get_courses_by_department(department_id):
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        """
+        SELECT id, course_code, group_number, name, professor, exam_date, units 
+        FROM university_courses 
+        WHERE department_id = ?
+    """,
+        (department_id,),
+    )
+    courses = cursor.fetchall()
+    conn.close()
+    return courses
