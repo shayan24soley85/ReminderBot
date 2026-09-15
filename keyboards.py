@@ -25,10 +25,10 @@ home_markup.add(home_btn)
 
 about_markup = telebot.types.InlineKeyboardMarkup(row_width=2)
 github_button = telebot.types.InlineKeyboardButton(
-    "گیت‌هاب", url="https://github.com/shayan24soley85"
+    "🐙 گیت‌هاب", url="https://github.com/shayan24soley85"
 )
 telegram_button = telebot.types.InlineKeyboardButton(
-    "تلگرام", url="https://t.me/shayan357v"
+    "✈️ تلگرام", url="https://t.me/shayan357v"
 )
 about_markup.add(github_button, telegram_button)
 about_markup.add(home_btn)
@@ -49,7 +49,7 @@ cancel_markup.add(cancel_btn)
 
 reminder_markup = telebot.types.InlineKeyboardMarkup(row_width=2)
 daily_btn = telebot.types.InlineKeyboardButton(
-    "🏠 کارهای روزانه", callback_data="cat_daily"
+    "📝 کارهای روزانه", callback_data="cat_daily"
 )
 uni_btn = telebot.types.InlineKeyboardButton("🎓 دانشگاه", callback_data="cat_uni")
 bday_btn = telebot.types.InlineKeyboardButton("🎂 تولدها", callback_data="cat_bday")
@@ -86,7 +86,7 @@ def get_my_courses_markup(courses=None):
     if courses:
         for course in courses:
             btn = telebot.types.InlineKeyboardButton(
-                course["name"], callback_data=f"select_course_{course['id']}"
+                f"🏷 {course['name']}", callback_data=f"select_course_{course['id']}"
             )
             markup.add(btn)
     add_course_btn = telebot.types.InlineKeyboardButton(
@@ -122,7 +122,7 @@ def get_departments_markup(departments):
     if departments:
         for dep in departments:
             btn = telebot.types.InlineKeyboardButton(
-                dep[1], callback_data=f"select_dep_{dep[0]}"
+                f"🏢 {dep[1]}", callback_data=f"select_dep_{dep[0]}"
             )
             markup.add(btn)
 
