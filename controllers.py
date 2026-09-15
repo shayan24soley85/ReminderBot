@@ -171,3 +171,19 @@ def show_department_courses(call):
         parse_mode="HTML",
         reply_markup=markup,
     )
+
+
+def save_user_course(call):
+    chat_id = call.message.chat.id
+    course_id = int(call.data.split("_")[2])
+
+    success = database.add_course_to_user(chat_id, course_id)
+
+    if success:
+        bot.answer_callback_query(
+            call.id, "✅ درس با موفقیت به لیست شما اضافه شد!", show_alert=True
+        )
+    else:
+        bot.answer_callback_query(
+            call.id, "⚠️ این درس از قبل در لیست شما وجود دارد!", show_alert=True
+        )

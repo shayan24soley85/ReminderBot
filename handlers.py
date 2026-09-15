@@ -118,16 +118,23 @@ def callback(call):
         bot.answer_callback_query(call.id)
 
     elif call.data == "uni_courses":
-        courses_list = []
+
+        courses_list = database.get_user_courses(call.message.chat.id)
+
+        text = "📚 <b>دروس من</b>\n\n"
+        if courses_list:
+            text += "در اینجا لیست دروس ثبت‌نامی شما قرار دارد (برای مدیریت روی درس کلیک کنید):"
+        else:
+            text += "شما هنوز هیچ درسی ثبت نکرده‌اید! برای شروع روی دکمه «افزودن درس» کلیک کنید."
+
         bot.edit_message_text(
             chat_id=call.message.chat.id,
             message_id=call.message.message_id,
-            text="📚 <b>دروس من</b>\n\nدر اینجا لیست دروس ثبت‌نامی شما قرار دارد:",
+            text=text,
             parse_mode="HTML",
             reply_markup=get_my_courses_markup(courses_list),
         )
         bot.answer_callback_query(call.id)
-
     elif call.data.startswith("select_course_"):
         bot.edit_message_text(
             chat_id=call.message.chat.id,
@@ -148,6 +155,8 @@ def callback(call):
 
     elif call.data == "ignore":
         bot.answer_callback_query(call.id)
+    elif call.data.startswith("save_course_"):
+        controllers.save_user_course(call)
 
 
 @bot.message_handler(commands=["start"])

@@ -115,3 +115,48 @@ def get_courses_by_department(department_id):
     courses = cursor.fetchall()
     conn.close()
     return courses
+
+
+def add_course_to_user(chat_id, course_id):
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute(
+        "SELECT id FROM user_courses WHERE chat_id = ? AND course_id = ?",
+        (chat_id, course_id),
+    )
+    if cursor.fetchone():
+        conn.close()
+        return False
+
+    cursor.execute(
+        "INSERT INTO user_courses (chat_id, course_id) VALUES (?, ?)",
+        (chat_id, course_id),
+    )
+    conn.commit()
+    conn.close()
+    return True
+
+
+def get_user_courses(chat_id):
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute(
+        """
+        SELECT uc.id, uc.name, uc.course_code, uc.group_number 
+        FROM user_courses 
+        JOIN university_courses uc ON user_courses.course_id = uc.id 
+        WHERE user_courses.chat_id = ?
+    """,
+        (chat_id,),
+    )
+
+    courses = cursor.fetchall()
+
+    result = []
+    for c in courses:
+        result.append({"id": c[0], "name": f"{c[1]} (گروه {c[3]})"})
+
+    conn.close()
+    return result
