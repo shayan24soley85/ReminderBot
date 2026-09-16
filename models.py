@@ -1,3 +1,4 @@
+from __future__ import annotations
 from dataclasses import dataclass
 from typing import Optional
 
@@ -8,6 +9,14 @@ from Enums import (
     hw_submission_status,
     exam_status,
 )
+
+
+@dataclass
+class Course:
+    name: str
+    professor: Optional[str] = None
+    exams: Optional[list[Exam]] = None
+    homeworks: Optional[list[Homework]] = None
 
 
 @dataclass
@@ -30,19 +39,11 @@ class Homework:
 
 
 @dataclass
-class Course:
-    name: str
-    professor: Optional[str] = None
-    exams: Optional[list[Exam]] = None
-    homeworks: Optional[list[Homework]] = None
-
-
-@dataclass
 class Reminder:
     user_id: int
     title: str
     date_time: str
-    status: str = "Pending"
+    status: str
 
 
 @dataclass

@@ -68,6 +68,45 @@ def init_db():
     conn.commit()
     conn.close()
 
+    sync_old_exams()
+
+
+def sync_old_exams():
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT uc.chat_id, uc.course_id, c.exam_date
+        FROM user_courses uc
+        JOIN university_courses c ON uc.course_id = c.id
+        WHERE c.exam_date != 'نامشخص' 
+          AND NOT EXISTS (
+              SELECT 1 FROM student_exams se 
+              WHERE se.chat_id = uc.chat_id AND se.course_id = uc.course_id
+          )
+    """)
+
+    missing_exams = cursor.fetchall()
+
+    for chat_id, course_id, exam_date in missing_exams:
+        cursor.execute(
+            """
+            INSERT INTO student_exams (chat_id, course_id, exam_type, date_time, status, location)
+            VALUES (?, ?, ?, ?, ?, ?)
+        """,
+            (
+                chat_id,
+                course_id,
+                ExamType.FINAL.value,
+                exam_date,
+                exam_status.NOT_STARTED.value,
+                None,
+            ),
+        )
+
+    conn.commit()
+    conn.close()
+
 
 def save_user(chat_id, name, age, phone):
     conn = get_connection()
