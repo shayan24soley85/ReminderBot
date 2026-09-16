@@ -221,3 +221,38 @@ def show_user_exams(call):
         parse_mode="HTML",
         reply_markup=markup,
     )
+
+
+def remove_user_course(call):
+    chat_id = call.message.chat.id
+    course_id = int(call.data.split("_")[2])
+
+    database.remove_course_from_user(chat_id, course_id)
+    bot.answer_callback_query(
+        call.id, "🗑 درس و امتحانات مرتبط با آن با موفقیت حذف شدند!", show_alert=True
+    )
+
+    refresh_my_courses(call)
+
+
+def refresh_my_courses(call):
+    chat_id = call.message.chat.id
+    courses_list = database.get_user_courses(chat_id)
+
+    text = "📚 <b>دروس من</b>\n\n"
+    if courses_list:
+        text += (
+            "در اینجا لیست دروس ثبت‌نامی شما قرار دارد (برای مدیریت روی درس کلیک کنید):"
+        )
+    else:
+        text += "شما هنوز هیچ درسی ثبت نکرده‌اید! برای شروع روی دکمه «افزودن درس» کلیک کنید."
+
+    from keyboards import get_my_courses_markup
+
+    bot.edit_message_text(
+        chat_id=chat_id,
+        message_id=call.message.message_id,
+        text=text,
+        parse_mode="HTML",
+        reply_markup=get_my_courses_markup(courses_list),
+    )

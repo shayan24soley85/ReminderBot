@@ -160,6 +160,8 @@ def callback(call):
     elif call.data == "uni_exams":
         controllers.show_user_exams(call)
         bot.answer_callback_query(call.id)
+    elif call.data.startswith("delete_course_"):
+        controllers.remove_user_course(call)
 
 
 @bot.message_handler(commands=["start"])

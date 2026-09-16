@@ -81,20 +81,25 @@ university_dashboard_markup.add(uni_back_btn, home_btn)
 
 
 def get_my_courses_markup(courses=None):
-    markup = telebot.types.InlineKeyboardMarkup(row_width=1)
+    markup = telebot.types.InlineKeyboardMarkup(row_width=2)
 
     if courses:
         for course in courses:
-            btn = telebot.types.InlineKeyboardButton(
+            btn_course = telebot.types.InlineKeyboardButton(
                 f"🏷 {course['name']}", callback_data=f"select_course_{course['id']}"
             )
-            markup.add(btn)
+            btn_delete = telebot.types.InlineKeyboardButton(
+                "❌ حذف", callback_data=f"delete_course_{course['id']}"
+            )
+            markup.row(btn_course, btn_delete)
+
     add_course_btn = telebot.types.InlineKeyboardButton(
         "➕ افزودن درس", callback_data="add_course"
     )
     back_btn = telebot.types.InlineKeyboardButton("🔙 بازگشت", callback_data="cat_uni")
-    markup.add(add_course_btn)
-    markup.add(back_btn, home_btn)
+
+    markup.row(add_course_btn)
+    markup.row(back_btn, home_btn)
 
     return markup
 

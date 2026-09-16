@@ -272,3 +272,20 @@ def get_user_exams_objects(chat_id):
         exam_objects.append(exam_obj)
 
     return exam_objects
+
+
+def remove_course_from_user(chat_id, course_id):
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute(
+        "DELETE FROM user_courses WHERE chat_id = ? AND course_id = ?",
+        (chat_id, course_id),
+    )
+    cursor.execute(
+        "DELETE FROM student_exams WHERE chat_id = ? AND course_id = ?",
+        (chat_id, course_id),
+    )
+
+    conn.commit()
+    conn.close()
