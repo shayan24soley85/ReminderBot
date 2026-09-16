@@ -157,6 +157,9 @@ def callback(call):
         bot.answer_callback_query(call.id)
     elif call.data.startswith("save_course_"):
         controllers.save_user_course(call)
+    elif call.data == "uni_exams":
+        controllers.show_user_exams(call)
+        bot.answer_callback_query(call.id)
 
 
 @bot.message_handler(commands=["start"])

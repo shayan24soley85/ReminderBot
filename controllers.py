@@ -187,3 +187,37 @@ def save_user_course(call):
         bot.answer_callback_query(
             call.id, "⚠️ این درس از قبل در لیست شما وجود دارد!", show_alert=True
         )
+
+
+def show_user_exams(call):
+    chat_id = call.message.chat.id
+    message_id = call.message.message_id
+
+    exams = database.get_user_exams_objects(chat_id)
+
+    if not exams:
+        text = "📝 <b>امتحانات من</b>\n\nشما در حال حاضر هیچ امتحان ثبت‌شده‌ای ندارید."
+    else:
+        text = "📝 <b>برنامه امتحانات من:</b>\n\n"
+        for exam in exams:
+            course_name = exam.course.name
+            e_type = exam.exam_type.value
+            date = exam.date_time
+            status = exam.exam_status.value
+
+            text += f"▪️ <b>{course_name}</b> (نوع: {e_type})\n"
+            text += f"   📅 تاریخ: {date}\n"
+            text += f"   وضعیت: {status}\n\n"
+
+    import telebot
+
+    markup = telebot.types.InlineKeyboardMarkup()
+    markup.add(telebot.types.InlineKeyboardButton("🔙 بازگشت", callback_data="cat_uni"))
+
+    bot.edit_message_text(
+        chat_id=chat_id,
+        message_id=message_id,
+        text=text,
+        parse_mode="HTML",
+        reply_markup=markup,
+    )
