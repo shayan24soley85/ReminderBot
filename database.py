@@ -1,4 +1,6 @@
 import sqlite3
+from models import Exam, Course
+from Enums import ExamType, exam_status
 
 DB_NAME = "bot_data.db"
 
@@ -48,6 +50,18 @@ def init_db():
             course_id INTEGER,
             FOREIGN KEY (chat_id) REFERENCES users(chat_id),
             FOREIGN KEY (course_id) REFERENCES university_courses(id)
+        )
+    """)
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS student_exams (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            chat_id INTEGER,
+            course_id INTEGER,
+            exam_type TEXT,
+            date_time TEXT,
+            status TEXT,
+            location TEXT
         )
     """)
 
@@ -133,6 +147,29 @@ def add_course_to_user(chat_id, course_id):
         "INSERT INTO user_courses (chat_id, course_id) VALUES (?, ?)",
         (chat_id, course_id),
     )
+
+    cursor.execute(
+        "SELECT exam_date FROM university_courses WHERE id = ?", (course_id,)
+    )
+    course_row = cursor.fetchone()
+
+    if course_row and course_row[0] and course_row[0] != "نامشخص":
+        exam_date = course_row[0]
+        cursor.execute(
+            """
+            INSERT INTO student_exams (chat_id, course_id, exam_type, date_time, status, location)
+            VALUES (?, ?, ?, ?, ?, ?)
+        """,
+            (
+                chat_id,
+                course_id,
+                ExamType.FINAL.value,
+                exam_date,
+                exam_status.NOT_STARTED.value,
+                None,
+            ),
+        )
+
     conn.commit()
     conn.close()
     return True
@@ -162,20 +199,37 @@ def get_user_courses(chat_id):
     return result
 
 
-def get_user_exams(chat_id):
+def get_user_exams_objects(chat_id):
     conn = get_connection()
     cursor = conn.cursor()
 
     cursor.execute(
         """
-        SELECT uc.name, uc.exam_date 
-        FROM user_courses 
-        JOIN university_courses uc ON user_courses.course_id = uc.id 
-        WHERE user_courses.chat_id = ? AND uc.exam_date != 'نامشخص'
+        SELECT se.exam_type, se.date_time, se.status, se.location,
+               uc.name, uc.professor
+        FROM student_exams se
+        JOIN university_courses uc ON se.course_id = uc.id
+        WHERE se.chat_id = ?
     """,
         (chat_id,),
     )
 
-    exams = cursor.fetchall()
+    rows = cursor.fetchall()
     conn.close()
-    return exams
+
+    exam_objects = []
+    for row in rows:
+        exam_type_str, date_time, status_str, location, course_name, prof = row
+
+        course_obj = Course(name=course_name, professor=prof)
+
+        exam_obj = Exam(
+            course=course_obj,
+            exam_type=ExamType(exam_type_str),
+            date_time=date_time,
+            exam_status=exam_status(status_str),
+            location=location,
+        )
+        exam_objects.append(exam_obj)
+
+    return exam_objects
