@@ -160,3 +160,22 @@ def get_user_courses(chat_id):
 
     conn.close()
     return result
+
+
+def get_user_exams(chat_id):
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute(
+        """
+        SELECT uc.name, uc.exam_date 
+        FROM user_courses 
+        JOIN university_courses uc ON user_courses.course_id = uc.id 
+        WHERE user_courses.chat_id = ? AND uc.exam_date != 'نامشخص'
+    """,
+        (chat_id,),
+    )
+
+    exams = cursor.fetchall()
+    conn.close()
+    return exams
