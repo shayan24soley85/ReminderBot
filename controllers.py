@@ -323,7 +323,7 @@ def process_remove_exam_command(message, admin_id):
 
     parts = message.text.split()
 
-    if len(parts) < 3:
+    if len(parts) < 5:
         help_text = (
             "⚠️ <b>فرمت دستور اشتباه است!</b>\n\n"
             "استفاده صحیح:\n"
@@ -339,6 +339,8 @@ def process_remove_exam_command(message, admin_id):
         group_number = parts[2]
         exam_type = parts[3]
         date_time = " ".join(parts[4:])
+
+        import database
 
         course_id = database.get_course_id(course_code, group_number)
 

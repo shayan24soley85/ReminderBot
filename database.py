@@ -259,12 +259,32 @@ def get_user_exams_objects(chat_id):
 def add_exam_to_course(course_id, exam_type, date_time, location=None):
     conn = get_connection()
     cursor = conn.cursor()
+
+    cursor.execute(
+        "SELECT 1 FROM course_exams WHERE course_id = ? AND exam_type = ? AND date_time = ?",
+        (course_id, exam_type, date_time),
+    )
+    if not cursor.fetchone():
+        cursor.execute(
+            """
+            INSERT INTO course_exams (course_id, exam_type, date_time, location)
+            VALUES (?, ?, ?, ?)
+            """,
+            (course_id, exam_type, date_time, location),
+        )
+    conn.commit()
+    conn.close()
+
+
+def remove_exam_from_course(course_id, exam_type, date_time):
+    conn = get_connection()
+    cursor = conn.cursor()
     cursor.execute(
         """
-        INSERT INTO course_exams (course_id, exam_type, date_time, location)
-        VALUES (?, ?, ?, ?)
+        DELETE FROM course_exams
+        WHERE course_id = ? AND exam_type = ? AND date_time LIKE ?
         """,
-        (course_id, exam_type, date_time, location),
+        (course_id, exam_type, f"%{date_time}%"),
     )
     conn.commit()
     conn.close()
