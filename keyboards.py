@@ -156,7 +156,7 @@ def get_department_courses_markup(courses, dep_id, page=1):
     if current_courses:
         for course in current_courses:
             course_id, c_code, group, c_name, prof, exam, units = course
-            btn_text = f"➕ {c_name} (گروه {group})"
+            btn_text = f"➕ {c_name} - {c_code} (گروه {group})"
             btn_callback = f"save_course_{course_id}"
 
             btn = telebot.types.InlineKeyboardButton(

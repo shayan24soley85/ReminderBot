@@ -213,7 +213,7 @@ def get_user_courses(chat_id):
 
     result = []
     for c in courses:
-        result.append({"id": c[0], "name": f"{c[1]} (گروه {c[3]})"})
+        result.append({"id": c[0], "name": f"{c[1]} - {c[2]} (گروه {c[3]})"})
 
     conn.close()
     return result
@@ -226,7 +226,7 @@ def get_user_exams_objects(chat_id):
     cursor.execute(
         """
         SELECT ce.exam_type, ce.date_time, ce.location,
-               uc.name, uc.professor
+               uc.name, uc.course_code, uc.professor
         FROM user_courses ur
         JOIN university_courses uc ON ur.course_id = uc.id
         JOIN course_exams ce ON ce.course_id = uc.id
@@ -240,9 +240,9 @@ def get_user_exams_objects(chat_id):
 
     exam_objects = []
     for row in rows:
-        exam_type_str, date_time, location, course_name, prof = row
+        exam_type_str, date_time, location, course_name, course_code, prof = row
 
-        course_obj = Course(name=course_name, professor=prof)
+        course_obj = Course(name=f"{course_name} - {course_code}", professor=prof)
 
         exam_obj = Exam(
             course=course_obj,
