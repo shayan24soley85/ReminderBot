@@ -12,66 +12,6 @@ from keyboards import (
 )
 
 
-@bot.message_handler(commands=["addexam"])
-def add_exam_command(message):
-
-    if message.chat.id != ADMIN_ID:
-        bot.reply_to(
-            message, "⛔️ شما ادمین نیستید و دسترسی لازم برای این دستور را ندارید!"
-        )
-        return
-
-    parts = message.text.split()
-
-    if len(parts) < 5:
-        help_text = (
-            "⚠️ <b>فرمت دستور اشتباه است!</b>\n\n"
-            "استفاده صحیح:\n"
-            "<code>/addexam [کد_درس] [گروه] [نوع] [تاریخ]</code>\n\n"
-            "انواع مجاز: Midterm, Final, Quiz\n"
-            "مثال:\n"
-            "<code>/addexam 40419 1 Midterm 1403/08/25</code>"
-        )
-        bot.reply_to(message, help_text, parse_mode="HTML")
-        return
-
-    try:
-        course_code = parts[1]
-        group_number = parts[2]
-        exam_type = parts[3]
-        date_time = " ".join(parts[4:])
-
-        from Enums import ExamType
-
-        valid_types = [e.value for e in ExamType]
-        if exam_type not in valid_types:
-            bot.reply_to(
-                message,
-                f"❌ نوع امتحان باید یکی از این موارد باشد: {', '.join(valid_types)}",
-            )
-            return
-
-        import database
-
-        course_id = database.get_course_id(course_code, group_number)
-
-        if not course_id:
-            bot.reply_to(
-                message, f"❌ درسی با کد {course_code} و گروه {group_number} یافت نشد!"
-            )
-            return
-
-        database.add_exam_to_course(course_id, exam_type, date_time)
-
-        bot.reply_to(
-            message,
-            f"✅ امتحان {exam_type} برای درس {course_code} (گروه {group_number}) با موفقیت در تاریخ {date_time} ثبت شد.",
-        )
-
-    except Exception as e:
-        bot.reply_to(message, f"❌ خطای سیستمی: {e}")
-
-
 @bot.callback_query_handler(func=lambda call: True)
 def callback(call):
     if call.data == "home":
@@ -111,18 +51,7 @@ def callback(call):
         bot.answer_callback_query(call.id)
 
     elif call.data == "clear_info":
-        database.delete_user(call.message.chat.id)
-
-        if call.message.chat.id in user_data:
-            del user_data[call.message.chat.id]
-
-        bot.edit_message_text(
-            chat_id=call.message.chat.id,
-            message_id=call.message.message_id,
-            text="🗑 اطلاعات پروفایل شما به طور کامل حذف شد!",
-            reply_markup=home_markup,
-        )
-        bot.answer_callback_query(call.id, "اطلاعات پاک شد!", show_alert=True)
+        controllers.clear_user_info(call)
 
     elif call.data == "edit_info":
         bot.delete_message(
@@ -178,23 +107,9 @@ def callback(call):
         bot.answer_callback_query(call.id)
 
     elif call.data == "uni_courses":
-
-        courses_list = database.get_user_courses(call.message.chat.id)
-
-        text = "📚 <b>دروس من</b>\n\n"
-        if courses_list:
-            text += "در اینجا لیست دروس ثبت‌نامی شما قرار دارد (برای مدیریت روی درس کلیک کنید):"
-        else:
-            text += "شما هنوز هیچ درسی ثبت نکرده‌اید! برای شروع روی دکمه «افزودن درس» کلیک کنید."
-
-        bot.edit_message_text(
-            chat_id=call.message.chat.id,
-            message_id=call.message.message_id,
-            text=text,
-            parse_mode="HTML",
-            reply_markup=get_my_courses_markup(courses_list),
-        )
+        controllers.refresh_my_courses(call)
         bot.answer_callback_query(call.id)
+
     elif call.data.startswith("select_course_"):
         bot.edit_message_text(
             chat_id=call.message.chat.id,
@@ -215,11 +130,14 @@ def callback(call):
 
     elif call.data == "ignore":
         bot.answer_callback_query(call.id)
+
     elif call.data.startswith("save_course_"):
         controllers.save_user_course(call)
+
     elif call.data == "uni_exams":
         controllers.show_user_exams(call)
         bot.answer_callback_query(call.id)
+
     elif call.data.startswith("delete_course_"):
         controllers.remove_user_course(call)
 
@@ -245,3 +163,8 @@ def send_help(message):
     )
     bot.send_chat_action(message.chat.id, action="typing")
     bot.reply_to(message, help_text, parse_mode="HTML", reply_markup=main_inline_markup)
+
+
+@bot.message_handler(commands=["addexam"])
+def add_exam_command(message):
+    controllers.process_add_exam_command(message, ADMIN_ID)

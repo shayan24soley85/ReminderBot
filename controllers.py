@@ -256,3 +256,75 @@ def refresh_my_courses(call):
         parse_mode="HTML",
         reply_markup=get_my_courses_markup(courses_list),
     )
+
+
+def process_add_exam_command(message, admin_id):
+    if message.chat.id != admin_id:
+        bot.reply_to(
+            message, "⛔️ شما ادمین نیستید و دسترسی لازم برای این دستور را ندارید!"
+        )
+        return
+
+    parts = message.text.split()
+
+    if len(parts) < 5:
+        help_text = (
+            "⚠️ <b>فرمت دستور اشتباه است!</b>\n\n"
+            "استفاده صحیح:\n"
+            "<code>/addexam [کد_درس] [گروه] [نوع] [تاریخ]</code>\n\n"
+            "انواع مجاز: Midterm, Final, Quiz\n"
+            "مثال:\n"
+            "<code>/addexam 40419 1 Midterm 1403/08/25</code>"
+        )
+        bot.reply_to(message, help_text, parse_mode="HTML")
+        return
+
+    try:
+        course_code = parts[1]
+        group_number = parts[2]
+        exam_type = parts[3]
+        date_time = " ".join(parts[4:])
+
+        from Enums import ExamType
+
+        valid_types = [e.value for e in ExamType]
+        if exam_type not in valid_types:
+            bot.reply_to(
+                message,
+                f"❌ نوع امتحان باید یکی از این موارد باشد: {', '.join(valid_types)}",
+            )
+            return
+
+        course_id = database.get_course_id(course_code, group_number)
+
+        if not course_id:
+            bot.reply_to(
+                message, f"❌ درسی با کد {course_code} و گروه {group_number} یافت نشد!"
+            )
+            return
+
+        database.add_exam_to_course(course_id, exam_type, date_time)
+
+        bot.reply_to(
+            message,
+            f"✅ امتحان {exam_type} برای درس {course_code} (گروه {group_number}) با موفقیت در تاریخ {date_time} ثبت شد.",
+        )
+
+    except Exception as e:
+        bot.reply_to(message, f"❌ خطای سیستمی: {e}")
+
+
+def clear_user_info(call):
+    chat_id = call.message.chat.id
+    database.delete_user(chat_id)
+
+    if chat_id in user_data:
+        del user_data[chat_id]
+
+    bot.edit_message_text(
+        chat_id=chat_id,
+        message_id=call.message.message_id,
+        text="🗑 اطلاعات پروفایل شما به طور کامل حذف شد!",
+        reply_markup=home_markup,
+    )
+    bot.answer_callback_query(call.id, "اطلاعات پاک شد!", show_alert=True)
