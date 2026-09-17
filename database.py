@@ -54,55 +54,45 @@ def init_db():
     """)
 
     cursor.execute("""
-        CREATE TABLE IF NOT EXISTS student_exams (
+        CREATE TABLE IF NOT EXISTS course_exams (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            chat_id INTEGER,
             course_id INTEGER,
             exam_type TEXT,
             date_time TEXT,
-            status TEXT,
-            location TEXT
+            location TEXT,
+            FOREIGN KEY (course_id) REFERENCES university_courses(id)
         )
     """)
 
     conn.commit()
     conn.close()
 
-    sync_old_exams()
+    sync_course_exams()
 
 
-def sync_old_exams():
+def sync_course_exams():
     conn = get_connection()
     cursor = conn.cursor()
 
     cursor.execute("""
-        SELECT uc.chat_id, uc.course_id, c.exam_date
-        FROM user_courses uc
-        JOIN university_courses c ON uc.course_id = c.id
-        WHERE c.exam_date != 'نامشخص' 
-          AND NOT EXISTS (
-              SELECT 1 FROM student_exams se 
-              WHERE se.chat_id = uc.chat_id AND se.course_id = uc.course_id
-          )
+        SELECT id, exam_date FROM university_courses 
+        WHERE exam_date != 'نامشخص'
     """)
+    courses = cursor.fetchall()
 
-    missing_exams = cursor.fetchall()
-
-    for chat_id, course_id, exam_date in missing_exams:
+    for course_id, exam_date in courses:
         cursor.execute(
-            """
-            INSERT INTO student_exams (chat_id, course_id, exam_type, date_time, status, location)
-            VALUES (?, ?, ?, ?, ?, ?)
-        """,
-            (
-                chat_id,
-                course_id,
-                ExamType.FINAL.value,
-                exam_date,
-                exam_status.NOT_STARTED.value,
-                None,
-            ),
+            "SELECT 1 FROM course_exams WHERE course_id = ? AND exam_type = ?",
+            (course_id, ExamType.FINAL.value),
         )
+        if not cursor.fetchone():
+            cursor.execute(
+                """
+                INSERT INTO course_exams (course_id, exam_type, date_time)
+                VALUES (?, ?, ?)
+            """,
+                (course_id, ExamType.FINAL.value, exam_date),
+            )
 
     conn.commit()
     conn.close()
@@ -187,31 +177,22 @@ def add_course_to_user(chat_id, course_id):
         (chat_id, course_id),
     )
 
-    cursor.execute(
-        "SELECT exam_date FROM university_courses WHERE id = ?", (course_id,)
-    )
-    course_row = cursor.fetchone()
-
-    if course_row and course_row[0] and course_row[0] != "نامشخص":
-        exam_date = course_row[0]
-        cursor.execute(
-            """
-            INSERT INTO student_exams (chat_id, course_id, exam_type, date_time, status, location)
-            VALUES (?, ?, ?, ?, ?, ?)
-        """,
-            (
-                chat_id,
-                course_id,
-                ExamType.FINAL.value,
-                exam_date,
-                exam_status.NOT_STARTED.value,
-                None,
-            ),
-        )
-
     conn.commit()
     conn.close()
     return True
+
+
+def remove_course_from_user(chat_id, course_id):
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute(
+        "DELETE FROM user_courses WHERE chat_id = ? AND course_id = ?",
+        (chat_id, course_id),
+    )
+
+    conn.commit()
+    conn.close()
 
 
 def get_user_courses(chat_id):
@@ -244,11 +225,12 @@ def get_user_exams_objects(chat_id):
 
     cursor.execute(
         """
-        SELECT se.exam_type, se.date_time, se.status, se.location,
+        SELECT ce.exam_type, ce.date_time, ce.location,
                uc.name, uc.professor
-        FROM student_exams se
-        JOIN university_courses uc ON se.course_id = uc.id
-        WHERE se.chat_id = ?
+        FROM user_courses ur
+        JOIN university_courses uc ON ur.course_id = uc.id
+        JOIN course_exams ce ON ce.course_id = uc.id
+        WHERE ur.chat_id = ?
     """,
         (chat_id,),
     )
@@ -258,7 +240,7 @@ def get_user_exams_objects(chat_id):
 
     exam_objects = []
     for row in rows:
-        exam_type_str, date_time, status_str, location, course_name, prof = row
+        exam_type_str, date_time, location, course_name, prof = row
 
         course_obj = Course(name=course_name, professor=prof)
 
@@ -266,7 +248,7 @@ def get_user_exams_objects(chat_id):
             course=course_obj,
             exam_type=ExamType(exam_type_str),
             date_time=date_time,
-            exam_status=exam_status(status_str),
+            exam_status=exam_status.NOT_STARTED,
             location=location,
         )
         exam_objects.append(exam_obj)
@@ -274,18 +256,15 @@ def get_user_exams_objects(chat_id):
     return exam_objects
 
 
-def remove_course_from_user(chat_id, course_id):
+def add_exam_to_course(course_id, exam_type, date_time, location=None):
     conn = get_connection()
     cursor = conn.cursor()
-
     cursor.execute(
-        "DELETE FROM user_courses WHERE chat_id = ? AND course_id = ?",
-        (chat_id, course_id),
+        """
+        INSERT INTO course_exams (course_id, exam_type, date_time, location)
+        VALUES (?, ?, ?, ?)
+        """,
+        (course_id, exam_type, date_time, location),
     )
-    cursor.execute(
-        "DELETE FROM student_exams WHERE chat_id = ? AND course_id = ?",
-        (chat_id, course_id),
-    )
-
     conn.commit()
     conn.close()
