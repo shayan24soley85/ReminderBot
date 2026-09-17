@@ -268,3 +268,15 @@ def add_exam_to_course(course_id, exam_type, date_time, location=None):
     )
     conn.commit()
     conn.close()
+
+
+def get_course_id(course_code, group_number):
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute(
+        "SELECT id FROM university_courses WHERE course_code = ? AND group_number = ?",
+        (course_code, group_number),
+    )
+    row = cursor.fetchone()
+    conn.close()
+    return row[0] if row else None
