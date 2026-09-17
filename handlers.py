@@ -165,6 +165,11 @@ def send_help(message):
     bot.reply_to(message, help_text, parse_mode="HTML", reply_markup=main_inline_markup)
 
 
-@bot.message_handler(commands=["addexam"])
+@bot.message_handler(commands=["add_exam"])
 def add_exam_command(message):
     controllers.process_add_exam_command(message, ADMIN_ID)
+
+
+@bot.message_handler(commands=["remove_exam"])
+def remove_exam_command(message):
+    controllers.process_remove_exam_command(message, ADMIN_ID)

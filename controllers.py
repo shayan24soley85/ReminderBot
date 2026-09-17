@@ -271,10 +271,10 @@ def process_add_exam_command(message, admin_id):
         help_text = (
             "⚠️ <b>فرمت دستور اشتباه است!</b>\n\n"
             "استفاده صحیح:\n"
-            "<code>/addexam [کد_درس] [گروه] [نوع] [تاریخ]</code>\n\n"
+            "<code>/add_exam [کد_درس] [گروه] [نوع] [تاریخ]</code>\n\n"
             "انواع مجاز: Midterm, Final, Quiz\n"
             "مثال:\n"
-            "<code>/addexam 40419 1 Midterm 1403/08/25</code>"
+            "<code>/add_exam 40419 1 Midterm 1403/08/25</code>"
         )
         bot.reply_to(message, help_text, parse_mode="HTML")
         return
@@ -308,6 +308,51 @@ def process_add_exam_command(message, admin_id):
         bot.reply_to(
             message,
             f"✅ امتحان {exam_type} برای درس {course_code} (گروه {group_number}) با موفقیت در تاریخ {date_time} ثبت شد.",
+        )
+
+    except Exception as e:
+        bot.reply_to(message, f"❌ خطای سیستمی: {e}")
+
+
+def process_remove_exam_command(message, admin_id):
+    if message.chat.id != admin_id:
+        bot.reply_to(
+            message, "⛔️ شما ادمین نیستید و دسترسی لازم برای این دستور را ندارید!"
+        )
+        return
+
+    parts = message.text.split()
+
+    if len(parts) < 3:
+        help_text = (
+            "⚠️ <b>فرمت دستور اشتباه است!</b>\n\n"
+            "استفاده صحیح:\n"
+            "<code>/remove_exam [کد_درس] [گروه] [نوع] [تاریخ]</code>\n"
+            "مثال:\n"
+            "<code>/remove_exam 40419 1 Quiz 1403/08/25</code>"
+        )
+        bot.reply_to(message, help_text, parse_mode="HTML")
+        return
+
+    try:
+        course_code = parts[1]
+        group_number = parts[2]
+        exam_type = parts[3]
+        date_time = " ".join(parts[4:])
+
+        course_id = database.get_course_id(course_code, group_number)
+
+        if not course_id:
+            bot.reply_to(
+                message, f"❌ درسی با کد {course_code} و گروه {group_number} یافت نشد!"
+            )
+            return
+
+        database.remove_exam_from_course(course_id, exam_type, date_time)
+
+        bot.reply_to(
+            message,
+            f"🗑️ امتحان {exam_type} در تاریخ {date_time} مرتبط با درس {course_code} (گروه {group_number}) با موفقیت حذف شد.",
         )
 
     except Exception as e:
