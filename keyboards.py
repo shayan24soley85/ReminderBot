@@ -1,6 +1,13 @@
 import telebot
 import math
 
+persistent_markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
+persistent_markup.add(
+    telebot.types.KeyboardButton("🎓 داشبورد دانشگاه"),
+    telebot.types.KeyboardButton("👤 پروفایل من"),
+)
+persistent_markup.add(telebot.types.KeyboardButton("🏠 خانه"))
+
 main_inline_markup = telebot.types.InlineKeyboardMarkup(row_width=2)
 reg_btn = telebot.types.InlineKeyboardButton(
     "✍️ ثبت اطلاعات", callback_data="register_info"

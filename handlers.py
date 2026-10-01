@@ -8,7 +8,7 @@ from keyboards import (
     reminder_markup,
     university_dashboard_markup,
     course_dashboard_markup,
-    get_my_courses_markup,
+    persistent_markup,
 )
 
 
@@ -27,7 +27,7 @@ def callback(call):
         bot.edit_message_text(
             chat_id=call.message.chat.id,
             message_id=call.message.message_id,
-            text="👨‍💻 <b>درباره ما</b>\n\nبه ربات یادآور خوش آمدید.\nشما می‌توانید کارهای ما را دنبال کرده و از طریق لینک‌های زیر با ما در ارتباط باشید:",
+            text="👨‍‍💻 <b>درباره ما</b>\n\nبه ربات یادآور خوش آمدید.\nشما می‌توانید کارهای ما را دنبال کرده و از طریق لینک‌های زیر با ما در ارتباط باشید:",
             parse_mode="HTML",
             reply_markup=about_markup,
         )
@@ -147,7 +147,12 @@ def send_welcome(message):
     bot.send_chat_action(message.chat.id, action="typing")
     bot.send_message(
         message.chat.id,
-        "سلام! به ربات یادآور خوش آمدید!\nیک گزینه از منوی زیر انتخاب کنید:",
+        "به ربات یادآور خوش آمدید! منوی دسترسی سریع در پایین صفحه برای شما فعال شد. 👇",
+        reply_markup=persistent_markup,
+    )
+    bot.send_message(
+        message.chat.id,
+        "یک گزینه از منوی زیر انتخاب کنید:",
         reply_markup=main_inline_markup,
     )
 
@@ -173,3 +178,25 @@ def add_exam_command(message):
 @bot.message_handler(commands=["remove_exam"])
 def remove_exam_command(message):
     controllers.process_remove_exam_command(message, ADMIN_ID)
+
+
+@bot.message_handler(
+    func=lambda message: message.text
+    in ["🏠 خانه", "🎓 داشبورد دانشگاه", "👤 پروفایل من"]
+)
+def handle_persistent_menu(message):
+    if message.text == "🏠 خانه":
+        bot.send_message(
+            message.chat.id,
+            "سلام! به ربات یادآور خوش آمدید!\nیک گزینه از منوی زیر انتخاب کنید:",
+            reply_markup=main_inline_markup,
+        )
+    elif message.text == "🎓 داشبورد دانشگاه":
+        bot.send_message(
+            message.chat.id,
+            "🎓 <b>داشبورد دانشگاه</b>\n\nلطفاً یک بخش را برای مدیریت انتخاب کنید:",
+            parse_mode="HTML",
+            reply_markup=university_dashboard_markup,
+        )
+    elif message.text == "👤 پروفایل من":
+        controllers.show_profile(message)
