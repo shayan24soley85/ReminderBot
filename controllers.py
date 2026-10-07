@@ -193,24 +193,27 @@ def save_user_course(call):
         )
 
 
-def _sort_exams_by_date(exam):
-    date_str = exam.date_time
+def parse_persian_datetime(date_str):
     if not date_str:
-        return datetime.max
-
+        return None
     try:
         if " " in date_str:
             date_part, time_part = date_str.split(" ", 1)
             y, m, d = map(int, date_part.split("/"))
             h, minute = map(int, time_part.split(":"))
-            gregorian = jdatetime.date(y, m, d).togregorian()
-            return datetime(gregorian.year, gregorian.month, gregorian.day, h, minute)
+            greg_date = jdatetime.date(y, m, d).togregorian()
+            return datetime(greg_date.year, greg_date.month, greg_date.day, h, minute)
         else:
             y, m, d = map(int, date_str.split("/"))
-            gregorian = jdatetime.date(y, m, d).togregorian()
-            return datetime(gregorian.year, gregorian.month, gregorian.day)
+            greg_date = jdatetime.date(y, m, d).togregorian()
+            return datetime(greg_date.year, greg_date.month, greg_date.day)
     except:
-        return datetime.max
+        return None
+
+
+def _sort_exams_by_date(exam):
+    dt = parse_persian_datetime(exam.date_time)
+    return dt if dt else datetime.max
 
 
 def show_user_exams(call):
@@ -225,11 +228,19 @@ def show_user_exams(call):
         exams.sort(key=_sort_exams_by_date)
 
         text = "📝 <b>برنامه امتحانات من:</b>\n\n"
+        now = datetime.now()
+        from Enums import exam_status
+
         for exam in exams:
             course_name = exam.course.name
             e_type = exam.exam_type.value
             date = exam.date_time
-            status = exam.exam_status.value
+
+            exam_dt = parse_persian_datetime(date)
+            if exam_dt and exam_dt < now:
+                status = exam_status.ENDED.value
+            else:
+                status = exam.exam_status.value
 
             text += f"▪️ <b>{course_name}</b> (نوع: {e_type})\n"
             text += f"   📅 تاریخ: {date}\n"
@@ -310,6 +321,21 @@ def process_add_exam_command(message, admin_id):
         group_number = parts[2]
         exam_type = parts[3]
         date_time = " ".join(parts[4:])
+
+        parsed_date = parse_persian_datetime(date_time)
+        if not parsed_date:
+            bot.reply_to(
+                message,
+                "❌ فرمت تاریخ نامعتبر است! لطفاً از فرمت 1403/08/25 یا 1403/08/25 15:00 استفاده کنید.",
+            )
+            return
+
+        if parsed_date < datetime.now():
+            bot.reply_to(
+                message,
+                "❌ تاریخ وارد شده در گذشته است! لطفاً یک تاریخ معتبر در آینده وارد کنید.",
+            )
+            return
 
         from Enums import ExamType
 
@@ -422,17 +448,12 @@ def check_and_send_reminders():
             conn.close()
 
             for date_str, e_type, c_name, c_code, group, chat_id in records:
-                if not date_str:
-                    continue
                 try:
-                    date_part = date_str.split(" ")[0]
-                    y, m, d = map(int, date_part.split("/"))
-                    greg_date = jdatetime.date(y, m, d).togregorian()
-                    exam_date_obj = datetime(
-                        greg_date.year, greg_date.month, greg_date.day
-                    )
+                    exam_date_obj = parse_persian_datetime(date_str)
+                    if not exam_date_obj:
+                        continue
 
-                    diff = (exam_date_obj - now).days
+                    diff = (exam_date_obj.date() - now.date()).days
                     if 0 <= diff <= 7:
                         msg = (
                             f"🔔 <b>یادآوری امتحان!</b>\n\n"
