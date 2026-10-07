@@ -1,4 +1,8 @@
 import re
+import threading
+import time
+from datetime import datetime
+import jdatetime
 from config import bot, user_data
 import database
 from keyboards import home_markup, profile_markup, cancel_markup
@@ -189,6 +193,26 @@ def save_user_course(call):
         )
 
 
+def _sort_exams_by_date(exam):
+    date_str = exam.date_time
+    if not date_str:
+        return datetime.max
+
+    try:
+        if " " in date_str:
+            date_part, time_part = date_str.split(" ", 1)
+            y, m, d = map(int, date_part.split("/"))
+            h, minute = map(int, time_part.split(":"))
+            gregorian = jdatetime.date(y, m, d).togregorian()
+            return datetime(gregorian.year, gregorian.month, gregorian.day, h, minute)
+        else:
+            y, m, d = map(int, date_str.split("/"))
+            gregorian = jdatetime.date(y, m, d).togregorian()
+            return datetime(gregorian.year, gregorian.month, gregorian.day)
+    except:
+        return datetime.max
+
+
 def show_user_exams(call):
     chat_id = call.message.chat.id
     message_id = call.message.message_id
@@ -198,6 +222,8 @@ def show_user_exams(call):
     if not exams:
         text = "📝 <b>امتحانات من</b>\n\nشما در حال حاضر هیچ امتحان ثبت‌شده‌ای ندارید."
     else:
+        exams.sort(key=_sort_exams_by_date)
+
         text = "📝 <b>برنامه امتحانات من:</b>\n\n"
         for exam in exams:
             course_name = exam.course.name
@@ -375,3 +401,53 @@ def clear_user_info(call):
         reply_markup=home_markup,
     )
     bot.answer_callback_query(call.id, "اطلاعات پاک شد!", show_alert=True)
+
+
+def check_and_send_reminders():
+    while True:
+        now = datetime.now()
+        if now.hour in [0, 12] and now.minute == 0:
+            conn = database.get_connection()
+            cursor = conn.cursor()
+
+            cursor.execute("""
+                SELECT ce.date_time, ce.exam_type, uc.name, uc.course_code, uc.group_number, u.chat_id
+                FROM course_exams ce
+                JOIN university_courses uc ON ce.course_id = uc.id
+                JOIN user_courses ur ON ur.course_id = uc.id
+                JOIN users u ON u.chat_id = ur.chat_id
+            """)
+
+            records = cursor.fetchall()
+            conn.close()
+
+            for date_str, e_type, c_name, c_code, group, chat_id in records:
+                if not date_str:
+                    continue
+                try:
+                    date_part = date_str.split(" ")[0]
+                    y, m, d = map(int, date_part.split("/"))
+                    greg_date = jdatetime.date(y, m, d).togregorian()
+                    exam_date_obj = datetime(
+                        greg_date.year, greg_date.month, greg_date.day
+                    )
+
+                    diff = (exam_date_obj - now).days
+                    if 0 <= diff <= 7:
+                        msg = (
+                            f"🔔 <b>یادآوری امتحان!</b>\n\n"
+                            f"امتحان {e_type} درس <b>{c_name} - {c_code}</b> (گروه {group}) "
+                            f"در تاریخ {date_str} برگزار می‌شود.\n\n"
+                            f"⏳ تنها <b>{diff} روز</b> تا زمان این امتحان باقی مانده است!"
+                        )
+                        bot.send_message(chat_id, msg, parse_mode="HTML")
+                except Exception as e:
+                    pass
+
+            time.sleep(60)
+        time.sleep(30)
+
+
+def start_scheduler():
+    thread = threading.Thread(target=check_and_send_reminders, daemon=True)
+    thread.start()
